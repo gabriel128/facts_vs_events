@@ -24,7 +24,7 @@
 
   <li>
     <strong>Date:</strong>
-    <%= @fact_user.date %>
+    <%= @fact_user.at%>
   </li>
 
   <li>

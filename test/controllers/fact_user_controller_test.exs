@@ -2,7 +2,7 @@ defmodule FactsVsEvents.FactUserControllerTest do
   use FactsVsEvents.ConnCase
 
   alias FactsVsEvents.FactUser
-  @valid_attrs %{commit_message: "some content", date: "2010-04-17 14:00:00", email: "some content", fact: "some content", name: "some content", transaction_id: 42, uuid: 42}
+  @valid_attrs %{email: "some content", name: "some content"}
   @invalid_attrs %{}
 
   test "lists all entries on index", %{conn: conn} do

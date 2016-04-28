@@ -6,15 +6,14 @@ defmodule FactsVsEvents.FactUser do
     field :email, :string
     field :uuid, :integer
     field :transaction_id, :integer
-    field :date, Ecto.DateTime
+    field :at, Ecto.DateTime
     field :fact, :string
     field :commit_message, :string
-
-    timestamps
   end
 
-  @required_fields ~w(name email uuid transaction_id date fact commit_message)
+  @required_fields ~w(name email )
   @optional_fields ~w()
+  # @optional_fields ~w(uuid transaction_id at fact commit_message)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
