@@ -1,0 +1,6 @@
+<h2>Edit fact user</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: fact_user_path(@conn, :update, @fact_user) %>
+
+<%= link "Back", to: fact_user_path(@conn, :index) %>

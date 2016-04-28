@@ -1,0 +1,43 @@
+<h2>Show fact user</h2>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @fact_user.name %>
+  </li>
+
+  <li>
+    <strong>Email:</strong>
+    <%= @fact_user.email %>
+  </li>
+
+  <li>
+    <strong>Uuid:</strong>
+    <%= @fact_user.uuid %>
+  </li>
+
+  <li>
+    <strong>Transaction:</strong>
+    <%= @fact_user.transaction_id %>
+  </li>
+
+  <li>
+    <strong>Date:</strong>
+    <%= @fact_user.date %>
+  </li>
+
+  <li>
+    <strong>Fact:</strong>
+    <%= @fact_user.fact %>
+  </li>
+
+  <li>
+    <strong>Commit message:</strong>
+    <%= @fact_user.commit_message %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: fact_user_path(@conn, :edit, @fact_user) %>
+<%= link "Back", to: fact_user_path(@conn, :index) %>
