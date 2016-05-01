@@ -22,8 +22,7 @@ defmodule FactsVsEvents.FactRepoTest do
   end
 
   test "creation without commit message" do
-    changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
-    {:ok, record} = FactRepo.create(FactUser, changeset)
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{})
     fact_user = Repo.get!(FactUser, record.id)
     assert length(Repo.all(FactUser)) == 1
     assert fact_user.fact == "created"
@@ -31,9 +30,8 @@ defmodule FactsVsEvents.FactRepoTest do
   end
 
   test "multiple creation" do
-    changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
-    {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
-    {:ok, record2} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    {:ok, record2} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
     fact_user = Repo.get!(FactUser, record.id)
     fact_user2 = Repo.get!(FactUser, record2.id)
     assert length(Repo.all(FactUser)) == 2
@@ -43,8 +41,7 @@ defmodule FactsVsEvents.FactRepoTest do
   test "update maintaining the previous record" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
-    update_changeset = FactUser.changeset(record, %{name: "other"})
-    {:ok, update_record} = FactRepo.update(update_changeset, commit_message: "Update this")
+    {:ok, update_record} = FactRepo.update(FactUser.changeset(record, %{name: "other"}), commit_message: "Update this")
     assert length(Repo.all(FactUser)) == 2
     assert record.uuid == update_record.uuid
     assert record.transaction_id == update_record.transaction_id - 1
@@ -53,8 +50,7 @@ defmodule FactsVsEvents.FactRepoTest do
   end
 
   test "delete maintainin the previous record" do
-    changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
-    {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
     {:ok, deleted_record} = FactRepo.delete(record, commit_message: "Deleting this")
     assert length(Repo.all(FactUser)) == 2
     assert record.uuid == deleted_record.uuid
