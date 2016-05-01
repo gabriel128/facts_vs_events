@@ -2,12 +2,13 @@ defmodule FactsVsEvents.FactUserControllerTest do
   use FactsVsEvents.ConnCase
 
   alias FactsVsEvents.FactUser
+  alias FactsVsEvents.FactRepo
   @valid_attrs %{email: "some content", name: "some content"}
   @invalid_attrs %{}
 
   test "lists all entries on index", %{conn: conn} do
     conn = get conn, fact_user_path(conn, :index)
-    assert html_response(conn, 200) =~ "Listing fact users"
+    assert html_response(conn, 200) =~ "Users View"
   end
 
   test "renders form for new resources", %{conn: conn} do
@@ -27,8 +28,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
   end
 
   test "shows chosen resource", %{conn: conn} do
-    fact_user = Repo.insert! %FactUser{}
-    conn = get conn, fact_user_path(conn, :show, fact_user)
+    {:ok, fact_user } = FactRepo.create FactUser, %FactUser{}
+    conn = get conn, fact_user_path(conn, :show, fact_user.uuid)
     assert html_response(conn, 200) =~ "Show fact user"
   end
 
@@ -39,28 +40,26 @@ defmodule FactsVsEvents.FactUserControllerTest do
   end
 
   test "renders form for editing chosen resource", %{conn: conn} do
-    fact_user = Repo.insert! %FactUser{}
-    conn = get conn, fact_user_path(conn, :edit, fact_user)
+    {:ok, fact_user } = FactRepo.create FactUser, %FactUser{}
+    conn = get conn, fact_user_path(conn, :edit, fact_user.uuid)
     assert html_response(conn, 200) =~ "Edit fact user"
   end
 
   test "updates chosen resource and redirects when data is valid", %{conn: conn} do
-    fact_user = Repo.insert! %FactUser{}
-    conn = put conn, fact_user_path(conn, :update, fact_user), fact_user: @valid_attrs
-    assert redirected_to(conn) == fact_user_path(conn, :show, fact_user)
-    assert Repo.get_by(FactUser, @valid_attrs)
+    {:ok, fact_user } = FactRepo.create FactUser, %FactUser{}
+    conn = put conn, fact_user_path(conn, :update, fact_user.uuid), fact_user: @valid_attrs
+    assert redirected_to(conn) == fact_user_path(conn, :show, fact_user.uuid)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
-    fact_user = Repo.insert! %FactUser{}
-    conn = put conn, fact_user_path(conn, :update, fact_user), fact_user: @invalid_attrs
+    {:ok, fact_user } = FactRepo.create FactUser, %FactUser{}
+    conn = put conn, fact_user_path(conn, :update, fact_user.uuid), fact_user: @invalid_attrs
     assert html_response(conn, 200) =~ "Edit fact user"
   end
 
   test "deletes chosen resource", %{conn: conn} do
-    fact_user = Repo.insert! %FactUser{}
-    conn = delete conn, fact_user_path(conn, :delete, fact_user)
+    {:ok, fact_user } = FactRepo.create FactUser, %FactUser{}
+    conn = delete conn, fact_user_path(conn, :delete, fact_user.uuid)
     assert redirected_to(conn) == fact_user_path(conn, :index)
-    refute Repo.get(FactUser, fact_user.id)
   end
 end

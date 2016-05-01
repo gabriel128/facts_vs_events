@@ -23,6 +23,15 @@ defmodule FactsVsEvents.FactRepoTest do
     assert fact_user.commit_message == "Create a new user"
   end
 
+  test "creation without commit message" do
+    changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
+    {:ok, record} = FactRepo.create(FactUser, changeset)
+    fact_user = Repo.get!(FactUser, record.id)
+    assert length(Repo.all(FactUser)) == 1
+    assert fact_user.fact == "created"
+    assert fact_user.commit_message == ""
+  end
+
   test "multiple creation" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
@@ -33,7 +42,7 @@ defmodule FactsVsEvents.FactRepoTest do
     assert fact_user2.uuid == fact_user.uuid + 1
   end
 
-  test "update maintainin the previous record" do
+  test "update maintaining the previous record" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
     update_changeset = FactUser.changeset(record, %{name: "other"})
@@ -58,7 +67,8 @@ defmodule FactsVsEvents.FactRepoTest do
   test "find return the last instance" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
-    FactRepo.update(record, %{name: "other"}, commit_message: "Update this")
+    update_changeset = FactUser.changeset(record, %{name: "other"})
+    FactRepo.update(update_changeset, commit_message: "Update this")
     found_record = FactRepo.get!(FactUser, record.uuid)
     assert found_record.name == "other"
   end
@@ -66,7 +76,8 @@ defmodule FactsVsEvents.FactRepoTest do
   test "all return the last instances" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
-    FactRepo.update(record, %{name: "other"}, commit_message: "Update this")
+    update_changeset = FactUser.changeset(record, %{name: "other"})
+    FactRepo.update(update_changeset, commit_message: "Update this")
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record2} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
     found_records = FactRepo.all(FactUser)

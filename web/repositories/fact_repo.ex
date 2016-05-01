@@ -3,24 +3,26 @@ defmodule FactsVsEvents.FactRepo do
   alias FactsVsEvents.Repo
   import Ecto.Query, only: [from: 2]
 
-  def create(model, changeset, [commit_message: commit_message]) do
+  @default_commit_message [commit_message: ""]
+
+  def create(model, changeset, [commit_message: commit_message] \\ @default_commit_message) do
     last_uuid = Repo.one(from u in model, select: max(u.uuid)) || 0
     changes = %{transaction_id: 1, uuid: last_uuid + 1, fact: "created", at: Ecto.DateTime.utc, commit_message: commit_message, id: nil}
     Ecto.Changeset.change(changeset, changes) |> Repo.insert()
   end
 
-  def update(update_changeset, [commit_message: commit_message]) do
+  def update(update_changeset, [commit_message: commit_message] \\ @default_commit_message) do
     changes = %{transaction_id: update_changeset.model.transaction_id + 1, id: nil, fact: "updated", at: Ecto.DateTime.utc, commit_message: commit_message}
     Ecto.Changeset.change(update_changeset, changes) |> Repo.insert()
   end
 
-  def delete(record, [commit_message: commit_message]) do
+  def delete(record, [commit_message: commit_message] \\ @default_commit_message) do
     changes = %{transaction_id: record.transaction_id + 1, fact: "deleted", at: Ecto.DateTime.utc, commit_message: commit_message}
     Ecto.Changeset.change(Map.delete(record, :id), changes) |> Repo.insert()
   end
 
   def get!(model, uuid) do
-    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id))
+    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id)) || 0
     Repo.one!(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id)
   end
 

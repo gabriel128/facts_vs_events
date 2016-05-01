@@ -16,7 +16,7 @@ defmodule FactsVsEvents.Router do
   scope "/", FactsVsEvents do
     pipe_through :browser # Use the default browser stack
 
-    resources "/", FactUserController
+    get "/", HomeController, :index
     resources "/fact_user", FactUserController
   end
 
