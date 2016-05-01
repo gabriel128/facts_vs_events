@@ -1,7 +1,6 @@
 # TODO
 # - history of records
 # - difference between transactions
-# - get! throws 404 when not found
 
 defmodule FactsVsEvents.FactRepoTest do
   use FactsVsEvents.ModelCase
