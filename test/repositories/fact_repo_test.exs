@@ -1,8 +1,7 @@
 # TODO
-# - multiple creation
 # - history of records
 # - difference between transactions
-# - commit default messessage
+# - get! throws 404 when not found
 
 defmodule FactsVsEvents.FactRepoTest do
   use FactsVsEvents.ModelCase
@@ -64,13 +63,31 @@ defmodule FactsVsEvents.FactRepoTest do
     assert deleted_record.fact == "deleted"
   end
 
-  test "find return the last instance" do
+  test "get! return the last instance" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
     update_changeset = FactUser.changeset(record, %{name: "other"})
     FactRepo.update(update_changeset, commit_message: "Update this")
     found_record = FactRepo.get!(FactUser, record.uuid)
     assert found_record.name == "other"
+  end
+
+  test "get doesnt return the last instance when deleted" do
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    FactRepo.delete(record, commit_message: "Deleting this")
+    found_record = FactRepo.get(FactUser, record.uuid)
+    assert found_record == nil
+  end
+
+  test "get! doesnt return the last instance when deleted" do
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    FactRepo.delete(record, commit_message: "Deleting this")
+    try do
+      found_record = FactRepo.get!(FactUser, record.uuid)
+      raise "fail"
+    rescue
+      Ecto.NoResultsError -> assert true == true
+    end
   end
 
   test "all return the last instances" do
@@ -82,5 +99,14 @@ defmodule FactsVsEvents.FactRepoTest do
     {:ok, record2} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
     found_records = FactRepo.all(FactUser)
     assert Enum.map(found_records, fn (u) -> u.transaction_id end) == [2, 1]
+  end
+
+  test "all return no deleted instances" do
+    FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    {:ok, record} = FactRepo.create(FactUser, %FactUser{}, commit_message: "Create a new user")
+    FactRepo.delete(record, commit_message: "Deleting this")
+    found_records = FactRepo.all(FactUser)
+    assert length(found_records) == 2
   end
 end

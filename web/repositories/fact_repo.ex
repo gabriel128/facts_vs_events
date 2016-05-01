@@ -23,7 +23,12 @@ defmodule FactsVsEvents.FactRepo do
 
   def get!(model, uuid) do
     last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id)) || 0
-    Repo.one!(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id)
+    Repo.one!(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id and u.fact != "deleted")
+  end
+
+  def get(model, uuid) do
+    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id)) || 0
+    Repo.one(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id and u.fact != "deleted")
   end
 
   def all(model) do
@@ -31,6 +36,7 @@ defmodule FactsVsEvents.FactRepo do
     |> Enum.group_by(fn (record) -> record.uuid end)
     |> Enum.map(fn  ({_, grouped_records}) -> grouped_records end)
     |> Enum.map(fn (grouped_records) -> get_the_one_with_biggest_transaction_id_from(grouped_records) end)
+    |> Enum.filter(fn(record) -> record.fact != "deleted" end)
   end
 
   defp get_the_one_with_biggest_transaction_id_from(grouped_records) do
