@@ -4,7 +4,6 @@
 # - difference between transactions
 # - commit default messessage
 
-
 defmodule FactsVsEvents.FactRepoTest do
   use FactsVsEvents.ModelCase
   alias FactsVsEvents.FactRepo
@@ -37,10 +36,12 @@ defmodule FactsVsEvents.FactRepoTest do
   test "update maintainin the previous record" do
     changeset = FactUser.changeset(%FactUser{}, %{name: "a_name", email: "an_email"})
     {:ok, record} = FactRepo.create(FactUser, changeset, commit_message: "Create a new user")
-    {:ok, update_record} = FactRepo.update(record, %{name: "other"}, commit_message: "Update this")
+    update_changeset = FactUser.changeset(record, %{name: "other"})
+    {:ok, update_record} = FactRepo.update(update_changeset, commit_message: "Update this")
     assert length(Repo.all(FactUser)) == 2
     assert record.uuid == update_record.uuid
     assert record.transaction_id == update_record.transaction_id - 1
+    assert update_record.name == "other"
     assert update_record.fact == "updated"
   end
 

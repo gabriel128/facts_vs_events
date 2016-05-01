@@ -1,8 +1,37 @@
-<h2>Listing fact users</h2>
+<h3>Users view</h3>
 
 <table class="table">
   <thead>
     <tr>
+      <th>Uuid</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for fact_user <- @fact_users do %>
+    <tr>
+      <td><%= fact_user.uuid %></td>
+      <td><%= fact_user.name %></td>
+      <td><%= fact_user.email %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: fact_user_path(@conn, :show, fact_user.uuid), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: fact_user_path(@conn, :edit, fact_user.uuid), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: fact_user_path(@conn, :delete, fact_user.uuid), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<h3>All users table rows</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
       <th>Name</th>
       <th>Email</th>
       <th>Uuid</th>
@@ -10,29 +39,21 @@
       <th>Date</th>
       <th>Fact</th>
       <th>Commit message</th>
-
-      <th></th>
     </tr>
   </thead>
   <tbody>
-<%= for fact_user <- @fact_users do %>
+<%= for fact_user <- @all_table_users do %>
     <tr>
+      <td><%= fact_user.id %></td>
       <td><%= fact_user.name %></td>
       <td><%= fact_user.email %></td>
       <td><%= fact_user.uuid %></td>
       <td><%= fact_user.transaction_id %></td>
-      <td><%= fact_user.date %></td>
+      <td><%= fact_user.at %></td>
       <td><%= fact_user.fact %></td>
       <td><%= fact_user.commit_message %></td>
-
-      <td class="text-right">
-        <%= link "Show", to: fact_user_path(@conn, :show, fact_user), class: "btn btn-default btn-xs" %>
-        <%= link "Edit", to: fact_user_path(@conn, :edit, fact_user), class: "btn btn-default btn-xs" %>
-        <%= link "Delete", to: fact_user_path(@conn, :delete, fact_user), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
-      </td>
     </tr>
 <% end %>
   </tbody>
 </table>
-
 <%= link "New fact user", to: fact_user_path(@conn, :new) %>

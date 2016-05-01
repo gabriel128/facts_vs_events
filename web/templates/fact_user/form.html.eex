@@ -18,36 +18,6 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :uuid, class: "control-label" %>
-    <%= number_input f, :uuid, class: "form-control" %>
-    <%= error_tag f, :uuid %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :transaction_id, class: "control-label" %>
-    <%= number_input f, :transaction_id, class: "form-control" %>
-    <%= error_tag f, :transaction_id %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :date, class: "control-label" %>
-    <%= datetime_select f, :date, class: "form-control" %>
-    <%= error_tag f, :date %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :fact, class: "control-label" %>
-    <%= text_input f, :fact, class: "form-control" %>
-    <%= error_tag f, :fact %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :commit_message, class: "control-label" %>
-    <%= text_input f, :commit_message, class: "form-control" %>
-    <%= error_tag f, :commit_message %>
-  </div>
-
-  <div class="form-group">
     <%= submit "Submit", class: "btn btn-primary" %>
   </div>
 <% end %>

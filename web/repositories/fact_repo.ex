@@ -9,9 +9,9 @@ defmodule FactsVsEvents.FactRepo do
     Ecto.Changeset.change(changeset, changes) |> Repo.insert()
   end
 
-  def update(record, changes, [commit_message: commit_message]) do
-    changes = Map.merge %{transaction_id: record.transaction_id + 1, fact: "updated", at: Ecto.DateTime.utc, commit_message: commit_message}, changes
-    Ecto.Changeset.change(Map.delete(record, :id), changes) |> Repo.insert()
+  def update(update_changeset, [commit_message: commit_message]) do
+    changes = %{transaction_id: update_changeset.model.transaction_id + 1, id: nil, fact: "updated", at: Ecto.DateTime.utc, commit_message: commit_message}
+    Ecto.Changeset.change(update_changeset, changes) |> Repo.insert()
   end
 
   def delete(record, [commit_message: commit_message]) do
@@ -20,9 +20,7 @@ defmodule FactsVsEvents.FactRepo do
   end
 
   def get!(model, uuid) do
-    last_tr_id = Repo.one(from u in model,
-                          where: u.uuid == ^uuid,
-                          select: max(u.transaction_id))
+    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id))
     Repo.one!(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id)
   end
 
