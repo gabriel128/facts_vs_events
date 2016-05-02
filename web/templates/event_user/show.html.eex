@@ -1,0 +1,18 @@
+<h2>Show event user</h2>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @event_user.name %>
+  </li>
+
+  <li>
+    <strong>Email:</strong>
+    <%= @event_user.email %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: event_user_path(@conn, :edit, @event_user) %>
+<%= link "Back", to: event_user_path(@conn, :index) %>

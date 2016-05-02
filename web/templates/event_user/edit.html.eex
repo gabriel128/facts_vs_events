@@ -1,0 +1,6 @@
+<h2>Edit event user</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: event_user_path(@conn, :update, @event_user) %>
+
+<%= link "Back", to: event_user_path(@conn, :index) %>

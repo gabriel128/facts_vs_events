@@ -18,6 +18,7 @@ defmodule FactsVsEvents.Router do
 
     get "/", HomeController, :index
     resources "/fact_user", FactUserController
+    resources "/event_user", EventUserController
   end
 
   # Other scopes may use custom stacks.

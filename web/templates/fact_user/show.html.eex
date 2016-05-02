@@ -39,5 +39,5 @@
 
 </ul>
 
-<%= link "Edit", to: fact_user_path(@conn, :edit, @fact_user) %>
+<%= link "Edit", to: fact_user_path(@conn, :edit, @fact_user.uuid) %>
 <%= link "Back", to: fact_user_path(@conn, :index) %>
