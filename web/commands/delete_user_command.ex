@@ -1,7 +1,7 @@
 defmodule FactsVsEvents.DeleteUserCommand do
   alias FactsVsEvents.Repo
 
-  def execute do
-    Repo.insert!(%FactsVsEvents.UserEvent{event_type: "UserDeleted"})
+  def execute(uuid) do
+    Repo.insert!(%FactsVsEvents.UserEvent{uuid: uuid, event_type: "UserDeleted"})
   end
 end

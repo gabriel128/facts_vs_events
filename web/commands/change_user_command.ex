@@ -1,7 +1,7 @@
 defmodule FactsVsEvents.ChangeUserCommand do
   alias FactsVsEvents.Repo
 
-  def execute(data) do
-    Repo.insert!(%FactsVsEvents.UserEvent{event_type: "UserChanged", data: data})
+  def execute(uuid, data) do
+    Repo.insert!(%FactsVsEvents.UserEvent{uuid: uuid, event_type: "UserChanged", data: data})
   end
 end

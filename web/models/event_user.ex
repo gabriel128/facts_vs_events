@@ -8,7 +8,7 @@ defmodule FactsVsEvents.EventUser do
     timestamps
   end
 
-  @required_fields ~w(name email)
+  @required_fields ~w()
   @optional_fields ~w()
 
   @doc """

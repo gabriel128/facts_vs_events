@@ -1,7 +1,7 @@
 defmodule FactsVsEvents.CreateUserCommand do
   alias FactsVsEvents.Repo
 
-  def execute(data) do
-    Repo.insert!(%FactsVsEvents.UserEvent{event_type: "UserCreated", data: data})
+  def execute(uuid, data) do
+    Repo.insert!(%FactsVsEvents.UserEvent{uuid: uuid,  event_type: "UserCreated", data: data})
   end
 end
