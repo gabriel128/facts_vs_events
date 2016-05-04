@@ -14,5 +14,5 @@
 
 </ul>
 
-<%= link "Edit", to: event_user_path(@conn, :edit, @event_user) %>
+<%= link "Edit", to: event_user_path(@conn, :edit, @event_user.uuid) %>
 <%= link "Back", to: event_user_path(@conn, :index) %>

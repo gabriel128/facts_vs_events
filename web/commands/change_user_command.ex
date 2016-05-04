@@ -6,4 +6,6 @@ defmodule FactsVsEvents.ChangeUserCommand do
     Repo.insert(%FactsVsEvents.UserEvent{uuid: uuid, event_type: "UserChanged", data: data})
     |> RepoResponseTransformer.build_response()
   end
+
+  def execute(uuid, _),  do: {:error, "Missing attributes"}
 end

@@ -1,20 +1,20 @@
-<%= form_for @changeset, @action, fn f -> %>
-  <%= if @changeset.action do %>
-    <div class="alert alert-danger">
-      <p>Oops, something went wrong! Please check the errors below.</p>
-    </div>
-  <% end %>
+<%= form_for @conn, @action, [as: :event_user], fn f -> %>
+  <%# <%= if @changeset.action do %1> %>
+  <%#   <div class="alert alert-danger"> %>
+  <%#     <p>Oops, something went wrong! Please check the errors below.</p> %>
+  <%#   </div> %>
+  <%# <% end %1> %>
 
   <div class="form-group">
-    <%= label f, :name, class: "control-label" %>
+    <%= label(:event_user, :name, class: "control-label") %>
     <%= text_input f, :name, class: "form-control" %>
-    <%= error_tag f, :name %>
+    <%# <%= error_tag f, :name %1> %>
   </div>
 
   <div class="form-group">
-    <%= label f, :email, class: "control-label" %>
+    <%= label :event_user, :email, class: "control-label" %>
     <%= text_input f, :email, class: "form-control" %>
-    <%= error_tag f, :email %>
+    <%# <%= error_tag f, :email %1> %>
   </div>
 
   <div class="form-group">

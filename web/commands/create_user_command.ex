@@ -11,6 +11,7 @@ defmodule FactsVsEvents.CreateUserCommand do
   end
 
   def execute(%{name: _ }),  do: {:error, "Missing email"}
+  def execute(_),  do: {:error, "Missing email and name"}
   def execute(%{email: _ }),  do: {:error, "Missing name"}
 end
 

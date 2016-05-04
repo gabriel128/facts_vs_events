@@ -14,14 +14,14 @@
   <tbody>
 <%= for event_user <- @event_users do %>
     <tr>
-      <td><%= event_user.params["name"] %></td>
-      <td><%= event_user.params["email"] %></td>
+      <td><%= event_user.name %></td>
+      <td><%= event_user.email %></td>
 
-      <%# <td class="text-right"> %>
-      <%#   <%= link "Show", to: event_user_path(@conn, :show, event_user), class: "btn btn-default btn-xs" %1> %>
-      <%#   <%= link "Edit", to: event_user_path(@conn, :edit, event_user), class: "btn btn-default btn-xs" %1> %>
-      <%#   <%= link "Delete", to: event_user_path(@conn, :delete, event_user), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %1> %>
-      <%# </td> %>
+      <td class="text-right">
+        <%= link "Show", to: event_user_path(@conn, :show, event_user.uuid), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: event_user_path(@conn, :edit, event_user.uuid), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: event_user_path(@conn, :delete, event_user.uuid), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
     </tr>
 <% end %>
   </tbody>
@@ -42,7 +42,7 @@
     <tr>
       <td><%= event.uuid %></td>
       <td><%= event.uuid %></td>
-      <%# <td><%= event.data %1></td> %>
+      <%# <td><%= html_safe(event.data) %1></td> %>
       <td><%= event.event_type%></td>
     </tr>
 <% end %>
