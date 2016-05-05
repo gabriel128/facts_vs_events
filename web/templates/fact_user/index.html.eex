@@ -31,11 +31,11 @@
 <table class="table">
   <thead>
     <tr>
-      <th>Id</th>
-      <th>Name</th>
-      <th>Email</th>
       <th>Uuid</th>
       <th>Transaction</th>
+      <th>DB Id</th>
+      <th>Name</th>
+      <th>Email</th>
       <th>Date</th>
       <th>Fact</th>
       <th>Commit message</th>
@@ -44,11 +44,11 @@
   <tbody>
 <%= for fact_user <- @all_table_users do %>
     <tr>
+      <td><%= fact_user.uuid %></td>
+      <td><%= fact_user.transaction_id %></td>
       <td><%= fact_user.id %></td>
       <td><%= fact_user.name %></td>
       <td><%= fact_user.email %></td>
-      <td><%= fact_user.uuid %></td>
-      <td><%= fact_user.transaction_id %></td>
       <td><%= fact_user.at %></td>
       <td><%= fact_user.fact %></td>
       <td><%= fact_user.commit_message %></td>

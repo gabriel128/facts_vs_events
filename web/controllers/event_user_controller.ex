@@ -25,7 +25,7 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def new(conn, _params) do
-    render(conn, "new.html", changeset: %EventUser{})
+    render(conn, "new.html", event_user: %EventUser{})
   end
 
   def create(conn, %{event_user: event_user_params}) do
@@ -36,7 +36,8 @@ defmodule FactsVsEvents.EventUserController do
         |> put_flash(:info, "Event user created successfully.")
         |> redirect(to: event_user_path(conn, :index))
       {:error, errors} -> 
-        render(conn, "new.html", changeset: %EventUser{}, errors: errors)
+        event_user = Map.merge %EventUser{}, event_user_params
+        render(conn, "new.html", event_user: event_user, errors: errors)
     end
   end
 
@@ -61,12 +62,15 @@ defmodule FactsVsEvents.EventUserController do
         |> put_flash(:info, "Event user updated successfully.")
         |> redirect(to: event_user_path(conn, :index))
       {:error, errors} -> 
-        render(conn, "edit.html", changeset: %EventUser{}, errors: errors)
+        params = JsonTransformer.keys_to_atoms(event_user_params)
+        event_user = Map.merge %EventUser{}, params
+        render(conn, "edit.html", event_user: %{ event_user | uuid: uuid}, errors: errors)
     end
   end
 
   def delete(conn, %{"id" => uuid}) do
-    DeleteUserCommand.execute(uuid)
+    String.to_integer(uuid)
+    |> DeleteUserCommand.execute()
     conn
     |> put_flash(:info, "Event user deleted successfully.")
     |> redirect(to: event_user_path(conn, :index))

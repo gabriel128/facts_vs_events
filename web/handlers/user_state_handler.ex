@@ -8,6 +8,7 @@ defmodule FactsVsEvents.UserStateHandler do
              |> current_state_from()
       acc ++ [user]
     end)
+    |> Enum.filter(fn (user) -> user != %{} end)
   end
 
   def current_state_from(events) do

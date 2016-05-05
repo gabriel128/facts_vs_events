@@ -47,4 +47,13 @@ defmodule FactsVsEvents.UserStateHandlerTest do
     assert Enum.at(users, 0).name == "a_name"
     assert Enum.at(users, 1).name == "b_name"
   end
+
+  test "construct all the users without the deleted one" do
+    CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
+    CreateUserCommand.execute(%{name: "b_name", email: "an_email"})
+    DeleteUserCommand.execute(2)
+    users = UserEventRepo.uuids
+           |> UserStateHandler.all(with_repo: UserEventRepo)
+    assert length(users) == 1
+  end
 end

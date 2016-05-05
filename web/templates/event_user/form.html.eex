@@ -1,23 +1,19 @@
-<%= form_for @conn, @action, [as: :event_user], fn f -> %>
-  <%# <%= if @changeset.action do %1> %>
-  <%#   <div class="alert alert-danger"> %>
-  <%#     <p>Oops, something went wrong! Please check the errors below.</p> %>
-  <%#   </div> %>
-  <%# <% end %1> %>
-
+<%= form_for @conn, @action, @options, fn f -> %>
   <div class="form-group">
     <%= label(:event_user, :name, class: "control-label") %>
-    <%= text_input f, :name, class: "form-control" %>
-    <%# <%= error_tag f, :name %1> %>
+    <input id="event_user_name" name="event_user[name]" 
+     type="text" value="<%= @event_user.name %>" class="form-control">
   </div>
 
   <div class="form-group">
     <%= label :event_user, :email, class: "control-label" %>
-    <%= text_input f, :email, class: "form-control" %>
-    <%# <%= error_tag f, :email %1> %>
+    <input id="event_user_email" name="event_user[email]" 
+     type="text" value="<%= @event_user.email %>" class="form-control">
   </div>
 
   <div class="form-group">
     <%= submit "Submit", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<%= link "Back", to: event_user_path(@conn, :index) %>

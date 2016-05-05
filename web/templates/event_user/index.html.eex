@@ -5,6 +5,7 @@
 <table class="table">
   <thead>
     <tr>
+      <th>Uuid</th>
       <th>Name</th>
       <th>Email</th>
 
@@ -14,6 +15,7 @@
   <tbody>
 <%= for event_user <- @event_users do %>
     <tr>
+      <td><%= event_user.uuid %></td>
       <td><%= event_user.name %></td>
       <td><%= event_user.email %></td>
 
@@ -41,8 +43,7 @@
 <%= for event <- @events do %>
     <tr>
       <td><%= event.uuid %></td>
-      <td><%= event.uuid %></td>
-      <%# <td><%= html_safe(event.data) %1></td> %>
+      <td><%= html_safe_map(event.data) %></td>
       <td><%= event.event_type%></td>
     </tr>
 <% end %>

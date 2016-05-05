@@ -1,27 +1,12 @@
 <h2>Edit event user</h2>
 
-<%= form_for @conn, event_user_path(@conn, :update, @event_user.uuid), [as: :event_user, method: :put], fn f -> %>
-  <%# <%= if @changeset.action do %1> %>
-  <%#   <div class="alert alert-danger"> %>
-  <%#     <p>Oops, something went wrong! Please check the errors below.</p> %>
-  <%#   </div> %>
-  <%# <% end %1> %>
-
-  <div class="form-group">
-    <%= label(:event_user, :name, class: "control-label") %>
-    <%= text_input f, :name, class: "form-control" %>
-    <%# <%= error_tag f, :name %1> %>
-  </div>
-
-  <div class="form-group">
-    <%= label :event_user, :email, class: "control-label" %>
-    <%= text_input f, :email, class: "form-control" %>
-    <%# <%= error_tag f, :email %1> %>
-  </div>
-
-  <div class="form-group">
-    <%= submit "Submit", class: "btn btn-primary" %>
+<%= if Map.has_key?(@conn.assigns, :errors) do %>
+  <div class="alert alert-danger">
+    <p><%= @errors %></p>
   </div>
 <% end %>
 
-<%= link "Back", to: event_user_path(@conn, :index) %>
+<%= render "form.html", event_user: @event_user,
+                        conn: @conn,
+                        action: event_user_path(@conn, :update, @event_user.uuid),
+                        options: [as: :event_user, method: :put] %>

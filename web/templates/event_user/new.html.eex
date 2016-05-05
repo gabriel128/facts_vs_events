@@ -1,5 +1,12 @@
 <h2>New event user</h2>
 
-<%= render "form.html", conn: @conn,  action: event_user_path(@conn, :create) %>
+<%= if Map.has_key?(@conn.assigns, :errors) do %>
+  <div class="alert alert-danger">
+    <p><%= @errors %></p>
+  </div>
+<% end %>
 
-<%= link "Back", to: event_user_path(@conn, :index) %>
+<%= render "form.html", event_user: @event_user,
+                        conn: @conn,
+                        action: event_user_path(@conn, :create),
+                        options: [as: :event_user] %>
