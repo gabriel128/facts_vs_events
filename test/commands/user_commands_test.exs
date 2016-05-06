@@ -49,6 +49,13 @@ defmodule FactsVsEvents.CreateUserCommandTest do
     assert found_record.data["name"] == "a_name"
   end
 
+  test "change user creates just new data" do
+    CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
+    ChangeUserCommand.execute(1, %{name: "other_name", email: "an_email"})
+    found_record = Repo.one(from e in UserEvent, where: e.event_type == "UserChanged")
+    assert found_record.data == %{ "name" => "other_name"}
+  end
+
   test "delete user command creates UserDeleted event" do
     {:ok} = DeleteUserCommand.execute(2)
     found_records = Repo.all(from e in UserEvent, where: e.event_type == "UserDeleted")
