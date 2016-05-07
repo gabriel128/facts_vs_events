@@ -36,12 +36,6 @@ defmodule FactsVsEvents.EventUserControllerTest do
     assert html_response(conn, 200) =~ "Show event user"
   end
 
-  # test "renders page not found when id is nonexistent", %{conn: conn} do
-  #   assert_error_sent 404, fn ->
-  #     get conn, event_user_path(conn, :show, -1)
-  #   end
-  # end
-
   test "renders form for editing chosen resource", %{conn: conn} do
     CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
     event_user = UserEventRepo.get_events_for_user_with(uuid: 1) 
@@ -63,7 +57,7 @@ defmodule FactsVsEvents.EventUserControllerTest do
     event_user = UserEventRepo.get_events_for_user_with(uuid: 1) 
                   |> UserStateHandler.current_state_from()
     conn = put conn, event_user_path(conn, :update, event_user.uuid), event_user: @invalid_attrs
-    assert html_response(conn, 200) =~ "Edit event user"
+    assert html_response(conn, 302)
   end
 
   test "deletes chosen resource", %{conn: conn} do

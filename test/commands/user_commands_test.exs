@@ -37,14 +37,9 @@ defmodule FactsVsEvents.CreateUserCommandTest do
     assert found_record.data["email"] == "an_email"
   end
 
-  test "change user command creates UserChanged event" do
-    {:ok} = ChangeUserCommand.execute(2, %{name: "a_name"})
-    found_records = Repo.all(from e in UserEvent, where: e.event_type == "UserChanged")
-    assert length(found_records) == 1
-  end
-
   test "change user creates event with data" do
-    ChangeUserCommand.execute(2, %{name: "a_name", email: "an_email"})
+    CreateUserCommand.execute(%{name: "name", email: "an_email"})
+    ChangeUserCommand.execute(1, %{name: "a_name", email: "an_email"})
     found_record = Repo.one(from e in UserEvent, where: e.event_type == "UserChanged")
     assert found_record.data["name"] == "a_name"
   end
@@ -63,12 +58,12 @@ defmodule FactsVsEvents.CreateUserCommandTest do
   end
 
   test "create user with invalid email fails with error" do
-    response = CreateUserCommand.execute(%{name: "a_name"})
+    response = CreateUserCommand.execute(%{name: "a_name", email: nil})
     assert response == {:error, "Missing email"}
   end
 
   test "create user with invalid name fails with error" do
-    response = CreateUserCommand.execute(%{email: "an_email"})
+    response = CreateUserCommand.execute(%{email: "an_email", name: nil})
     assert response == {:error, "Missing name"}
   end
 end

@@ -8,22 +8,25 @@ defmodule FactsVsEvents.ChangeUserCommand do
   def execute(uuid, %{"email" => _, "name" => nil }),  do: {:error, "Missing name"}
 
   def execute(uuid, data) do
-    event_user = UserEventRepo.get_events_for_user_with(uuid: uuid) 
-                 |> UserStateHandler.current_state_from()
-    new_data = Enum.filter(data, fn {k,v} -> 
-      existing_value?(k, v, event_user)
-    end)
-    Repo.insert(%FactsVsEvents.UserEvent{uuid: uuid, event_type: "UserChanged", 
-      data: Map.new(new_data)})
+    Repo.insert(%FactsVsEvents.UserEvent{uuid: uuid, event_type: "UserChanged", data: Map.new(new_data_with(uuid, data))})
     |> RepoResponseTransformer.build_response()
   end
 
+  defp new_data_with(uuid, data) do
+    Enum.filter(data, fn {k,v} -> existing_value?(k, v, event_user_by(uuid)) end)
+  end
+
+  defp event_user_by(uuid) do
+    UserEventRepo.get_events_for_user_with(uuid: uuid) 
+    |> UserStateHandler.current_state_from()
+  end
+
   defp existing_value?(k, v, event_user) when is_atom(k) do
-    Map.from_struct(event_user)[k] != v 
+    Map.from_struct(event_user)[k] != v
   end
 
   defp existing_value?(k, v, event_user) do
-    Map.from_struct(event_user)[String.to_atom(k)] != v 
+    Map.from_struct(event_user)[String.to_atom(k)] != v
   end
 
 end
