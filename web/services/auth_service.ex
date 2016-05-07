@@ -17,10 +17,18 @@ defmodule FactsVsEvents.AuthService do
 
   def current_user(conn) do
     id = Plug.Conn.get_session(conn, :current_user)
-    if id, do: Repo.get(User, id)
+    fetch_current_user(id)
   end
 
   def logged_in?(conn), do: !!current_user(conn)
+
+  defp fetch_current_user(nil) do
+    false
+  end
+
+  defp fetch_current_user(id) do
+    Repo.get(User, id)
+  end
 
   defp login_response_regarding(nil, changeset) do
     {:error, changeset}
