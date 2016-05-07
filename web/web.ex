@@ -52,12 +52,14 @@ defmodule FactsVsEvents.Web do
       import FactsVsEvents.Router.Helpers
       import FactsVsEvents.ErrorHelpers
       import FactsVsEvents.Gettext
+      import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
     end
   end
 
   def router do
     quote do
       use Phoenix.Router
+      import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
     end
   end
 

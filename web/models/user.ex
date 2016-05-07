@@ -1,3 +1,5 @@
+#TODO 
+# make email uniq
 defmodule FactsVsEvents.User do
   use FactsVsEvents.Web, :model
 
@@ -5,11 +7,12 @@ defmodule FactsVsEvents.User do
     field :name, :string
     field :encrypted_password, :string
     field :email, :string
+    field :password, :string, virtual: true
 
     timestamps
   end
 
-  @required_fields ~w(name email)
+  @required_fields ~w(email password)
   @optional_fields ~w()
 
   @doc """
@@ -21,5 +24,8 @@ defmodule FactsVsEvents.User do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> unique_constraint(:email)
+    |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: 4)
   end
 end

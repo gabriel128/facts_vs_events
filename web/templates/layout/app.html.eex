@@ -15,18 +15,31 @@
 
   <body>
     <div class="container">
-      <header class="header">
-        <nav role="navigation">
-          <ul class="nav nav-tabs">
-            <li class=""><a href="<%= fact_user_path(@conn, :index) %>">Facts User</a></li>
-            <li class=""><a href="<%= event_user_path(@conn, :index) %>">Events User</a></li>
-          </ul>
-        </nav>
-        <%# <span class="logo"></span> %>
-      </header>
+      <ul class="nav nav-pills" style="float:right ">
+        <%= if logged_in?(@conn) do %>
+          <li><%= current_user(@conn).email %></li>
+          <li></li>
+          <li><%= link "Logout", to: session_path(@conn, :delete), method: :delete %></li>
+        <% else %>
+          <li><%= link "Login",    to: "/login" %></li>
+          <li><%= link "Register", to: registration_path(@conn, :new) %></li>
+        <% end %>
+      </ul>
 
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+      <%= if logged_in?(@conn) do %>
+        <header class="header">
+          <nav role="navigation">
+            <ul class="nav nav-tabs">
+              <li class=""><a href="<%= fact_user_path(@conn, :index) %>">Facts User</a></li>
+              <li class=""><a href="<%= event_user_path(@conn, :index) %>">Events User</a></li>
+            </ul>
+          </nav>
+
+        </header>
+      <% end %>
+
+      <p class="alert alert-info" style="margin-top:15px" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" style="margin-top:15px" role="alert"><%= get_flash(@conn, :error) %></p>
 
       <main role="main">
         <%= render @view_module, @view_template, assigns %>

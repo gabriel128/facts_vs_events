@@ -5,7 +5,7 @@ defmodule FactsVsEvents.UserTest do
   alias FactsVsEvents.Repo
   alias FactsVsEvents.AuthService
 
-  @valid_attrs %{email: "some content", name: "some content"}
+  @valid_attrs %{email: "some@content", password: "password"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
@@ -20,22 +20,23 @@ defmodule FactsVsEvents.UserTest do
 
   test "register a new user" do
     changeset = User.changeset(%User{}, @valid_attrs)
-    AuthService.register(changeset, "password")
+    AuthService.register(changeset)
     user = Repo.one(User)
     assert user.encrypted_password == :crypto.hash(:sha256, "password") |> Base.encode16
   end
 
   test "authentication of existing user successfull" do
     changeset = User.changeset(%User{}, @valid_attrs)
-    AuthService.register(changeset, "password")
-    {:ok, user} = AuthService.login(changeset, "password")
-    assert user.name == "some content"
+    AuthService.register(changeset)
+    {:ok, user} = AuthService.login(changeset)
+    assert user.email == "some@content"
   end
 
   test "authentication of existing user unsuccessfull" do
-    changeset = User.changeset(%User{}, @valid_attrs)
-    AuthService.register(changeset, "password")
-    {:error, user_changeset} = AuthService.login(changeset, "passworde")
-    assert user_changeset.params["name"] == "some content"
+    changeset = User.changeset(%User{}, %{email: "some@mail", password: "password"})
+    AuthService.register(changeset)
+    changeset = User.changeset(%User{}, %{email: "some@mail", password: "passworde"})
+    {:error, user_changeset} = AuthService.login(changeset)
+    assert user_changeset.params["email"] == "some@mail"
   end
 end
