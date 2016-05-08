@@ -1,5 +1,6 @@
 defmodule FactsVsEvents.FakeLogin do
   alias FactsVsEvents.AuthService
+  alias FactsVsEvents.User
   import Mock
 
   defmacro __using__(_opts) do
@@ -11,7 +12,7 @@ defmodule FactsVsEvents.FakeLogin do
   defmacro with_auth_mocked(do: block) do
     quote do
       with_mock AuthService, [logged_in?: fn (_) -> true end, 
-       current_user: fn(_) -> %FactsVsEvents.User{} end] do 
+       current_user: fn(_) -> %{id: 1, email: "some@mail", name: "some"} end] do 
          unquote(block)
        end
     end
