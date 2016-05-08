@@ -9,7 +9,7 @@ defmodule FactsVsEvents.UserEvent do
     timestamps
   end
 
-  @required_fields ~w(uuid event_type)
+  @required_fields ~w(uuid event_type owner_id)
   @optional_fields ~w()
 
   def changeset(model, params \\ :empty) do

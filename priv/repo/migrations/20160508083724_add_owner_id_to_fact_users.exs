@@ -5,9 +5,5 @@ defmodule FactsVsEvents.Repo.Migrations.AddOwnerIdToFactUsers do
     alter table(:fact_users) do
       add :owner_id, :integer
     end
-
-    alter table(:event_users) do
-      add :owner_id, :integer
-    end
   end
 end

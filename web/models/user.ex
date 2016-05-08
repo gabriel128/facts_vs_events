@@ -1,5 +1,3 @@
-#TODO 
-# make email uniq
 defmodule FactsVsEvents.User do
   use FactsVsEvents.Web, :model
 
@@ -7,8 +5,9 @@ defmodule FactsVsEvents.User do
     field :name, :string
     field :encrypted_password, :string
     field :email, :string
-    field :password, :string, virtual: true
+    field :event_uuids, {:array, :integer}, default: []
 
+    field :password, :string, virtual: true
     timestamps
   end
 

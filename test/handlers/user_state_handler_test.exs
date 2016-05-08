@@ -1,4 +1,3 @@
-# TODO
 defmodule FactsVsEvents.UserStateHandlerTest do
   use FactsVsEvents.ModelCase
   alias FactsVsEvents.CreateUserCommand
@@ -8,6 +7,9 @@ defmodule FactsVsEvents.UserStateHandlerTest do
   alias FactsVsEvents.EventUser
   alias FactsVsEvents.UserEvent
   alias FactsVsEvents.UserEventRepo
+  alias FactsVsEvents.Repo
+  alias FactsVsEvents.User
+  alias FactsVsEvents.AuthService
   import Ecto.Query, only: [from: 2]
 
   test "reconstruct state from just created object" do
@@ -53,4 +55,39 @@ defmodule FactsVsEvents.UserStateHandlerTest do
            |> UserStateHandler.all(with_repo: UserEventRepo)
     assert length(users) == 1
   end
+
+  test "just returning events by user owner uuids" do
+    {:ok, uuid} = CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
+    ChangeUserCommand.execute(uuid, %{name: "another_name"})
+    {:ok, other_uuid} = CreateUserCommand.execute(%{name: "b_name", email: "an_email"})
+    {:ok, user} = AuthService.register( User.changeset(%User{}, %{name: "a", email: "m@m", password: "1234"}))
+    {:ok, user} = UserEventsOwner.add_uuid_to_user(user, uuid)
+    user_events = UserEventRepo.uuids |> UserStateHandler.all(with_repo: UserEventRepo)
+    found_events = UserEventsOwner.filter_events_given(user_events, user)
+    assert Enum.at(found_events, 0).name == "another_name"
+  end
+
+  test "single event filtered by user owner uuid" do
+    {:ok, uuid} = CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
+    {:ok, user} = AuthService.register( User.changeset(%User{}, %{name: "a", email: "m@m", password: "1234"}))
+    {:ok, user} = UserEventsOwner.add_uuid_to_user(user, uuid)
+    user_events = UserEventRepo.uuids |> UserStateHandler.all(with_repo: UserEventRepo)
+    found_events = UserEventsOwner.filter_events_given(user_events, user)
+    assert Enum.at(found_events, 0).name == "a_name"
+  end
+end
+
+defmodule UserEventsOwner do
+  alias FactsVsEvents.Repo
+
+  def add_uuid_to_user(user, uuid) do
+    uuids = user.event_uuids ++ [uuid]
+    changeset = Ecto.Changeset.change user, event_uuids: uuids
+    Repo.update(changeset)
+  end
+
+  def filter_events_given(events, user) do
+    Enum.filter events, fn (event) -> event.uuid in user.event_uuids end
+  end
+
 end
