@@ -8,6 +8,8 @@ defmodule FactsVsEvents.EventUserController do
   alias FactsVsEvents.UserEvent
   alias FactsVsEvents.UserEventRepo
   alias FactsVsEvents.JsonTransformer
+  alias FactsVsEvents.UserEventsOwner
+  import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
   plug :scrub_params, "event_user" when action in [:create, :update]
   plug :params_keys_to_atoms when action in [:create]
@@ -20,7 +22,9 @@ defmodule FactsVsEvents.EventUserController do
   def index(conn, _params) do
     event_users = UserEventRepo.uuids
                   |> UserStateHandler.all(with_repo: UserEventRepo)
+                  |> UserEventsOwner.filter_events_given(current_user(conn))
     events = Repo.all(UserEvent)
+             |> UserEventsOwner.filter_events_given(current_user(conn))
     render(conn, "index.html", event_users: event_users, events: events)
   end
 
@@ -29,9 +33,11 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def create(conn, %{event_user: event_user_params}) do
+    #add with
     response = CreateUserCommand.execute(event_user_params)
     case response do
-      {:ok} ->
+      {:ok, uuid} ->
+        UserEventsOwner.add_uuid_to_user(current_user(conn), uuid)
         conn
         |> put_flash(:info, "Event user created successfully.")
         |> redirect(to: event_user_path(conn, :index))
@@ -41,14 +47,29 @@ defmodule FactsVsEvents.EventUserController do
     end
   end
 
+  #TODO filter if user has uuid
   def show(conn, %{"id" => uuid}) do
     event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
-    render(conn, "show.html", event_user: event_user)
+                 |> UserEventsOwner.filter_event_given(current_user(conn))
+    case event_user do
+      {:ok, event_user} -> render(conn, "show.html", event_user: event_user)
+      {:error} -> 
+       conn
+       |> put_status(:not_found)
+       |> render(FactsVsEvents.ErrorView, "404.html")
+    end
   end
 
   def edit(conn, %{"id" => uuid}) do
     event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
-    render(conn, "edit.html", event_user: event_user)
+                 |> UserEventsOwner.filter_event_given(current_user(conn))
+    case event_user do
+      {:ok, event_user} -> render(conn, "edit.html", event_user: event_user)
+      {:error} -> 
+       conn
+       |> put_status(:not_found)
+       |> render(FactsVsEvents.ErrorView, "404.html")
+    end
   end
 
   def update(conn, %{"id" => uuid, "event_user" => event_user_params}) do
