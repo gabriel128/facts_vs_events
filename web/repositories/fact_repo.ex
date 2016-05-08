@@ -21,26 +21,39 @@ defmodule FactsVsEvents.FactRepo do
     Ecto.Changeset.change(Map.delete(record, :id), changes) |> Repo.insert()
   end
 
-  def get!(model, uuid) do
-    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id)) || 0
-    Repo.one!(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id and u.fact != "deleted")
+  def get!(model, uuid, [owner_id: owner_id]) do
+    Repo.one!(get_query(model, uuid, owner_id))
   end
 
-  def get(model, uuid) do
-    last_tr_id = Repo.one(from u in model, where: u.uuid == ^uuid, select: max(u.transaction_id)) || 0
-    Repo.one(from u in model, where: u.uuid == ^uuid and u.transaction_id == ^last_tr_id and u.fact != "deleted")
+  def get(model, uuid, [owner_id: owner_id]) do
+    Repo.one(get_query(model, uuid, owner_id))
   end
 
-  def all(model) do
-    Repo.all(model)
+  def all(model, [owner_id: owner_id]) do
+    Repo.all(from u in model,  where: u.owner_id == ^owner_id)
     |> Enum.group_by(fn (record) -> record.uuid end)
     |> Enum.map(fn  ({_, grouped_records}) -> grouped_records end)
-    |> Enum.map(fn (grouped_records) -> get_the_one_with_biggest_transaction_id_from(grouped_records) end)
+    |> Enum.map(fn (grouped_records) -> find_with_biggest_transaction_id_from(grouped_records) end)
     |> Enum.filter(fn(record) -> record.fact != "deleted" end)
   end
 
-  defp get_the_one_with_biggest_transaction_id_from(grouped_records) do
+  def last_transaction_id(model, uuid) do
+    Repo.one(from u in model, 
+             where: u.uuid == ^uuid, 
+             select: max(u.transaction_id)) || 0
+  end
+
+  defp find_with_biggest_transaction_id_from(grouped_records) do
     Enum.sort(grouped_records, fn(grouped_records,y) -> grouped_records.transaction_id < y.transaction_id end)
     |> List.last()
   end
+
+  defp get_query(model, uuid, owner_id) do
+    from u in model, 
+    where: u.uuid == ^uuid 
+    and u.transaction_id == ^last_transaction_id(model, uuid)
+    and u.owner_id == ^owner_id
+    and u.fact != "deleted"
+  end
+
 end
