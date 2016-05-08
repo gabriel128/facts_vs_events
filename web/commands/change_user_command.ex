@@ -13,12 +13,13 @@ defmodule FactsVsEvents.ChangeUserCommand do
   end
 
   defp new_data_with(uuid, data) do
-    Enum.filter(data, fn {k,v} -> existing_value?(k, v, event_user_by(uuid)) end)
+    Enum.filter(data, fn {k,v} -> 
+      existing_value?(k, v, event_user_by(uuid)) 
+    end)
   end
 
   defp event_user_by(uuid) do
-    UserEventRepo.get_events_for_user_with(uuid: uuid) 
-    |> UserStateHandler.current_state_from()
+    UserEventRepo.find(uuid: uuid, with: UserStateHandler)
   end
 
   defp existing_value?(k, v, event_user) when is_atom(k) do
@@ -28,5 +29,4 @@ defmodule FactsVsEvents.ChangeUserCommand do
   defp existing_value?(k, v, event_user) do
     Map.from_struct(event_user)[String.to_atom(k)] != v
   end
-
 end

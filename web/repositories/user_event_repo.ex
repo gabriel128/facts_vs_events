@@ -10,4 +10,9 @@ defmodule FactsVsEvents.UserEventRepo do
   def get_events_for_user_with([uuid: uuid]) do
     Repo.all(from e in UserEvent, where: e.uuid == ^uuid)
   end
+
+  def find([uuid: uuid, with: state_handler]) do
+    get_events_for_user_with(uuid: uuid)
+    |> state_handler.current_state_from()
+  end
 end

@@ -12,8 +12,7 @@ defmodule FactsVsEvents.UserStateHandlerTest do
 
   test "reconstruct state from just created object" do
     CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
-    user = UserEventRepo.get_events_for_user_with(uuid: 1) 
-           |> UserStateHandler.current_state_from()
+    user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
     assert user.name == "a_name"
     assert user.email == "an_email"
     assert user.uuid == 1
@@ -24,8 +23,7 @@ defmodule FactsVsEvents.UserStateHandlerTest do
     last_uuid = Repo.one(from u in UserEvent, select: max(u.uuid))
     ChangeUserCommand.execute(last_uuid, %{name: "other_name"})
     ChangeUserCommand.execute(last_uuid, %{name: "another_name"})
-    user = UserEventRepo.get_events_for_user_with(uuid: last_uuid) 
-           |> UserStateHandler.current_state_from()
+    user = UserEventRepo.find(uuid: last_uuid, with: UserStateHandler)
     assert user.name == "another_name"
     assert user.email == "an_email"
   end
@@ -34,8 +32,7 @@ defmodule FactsVsEvents.UserStateHandlerTest do
     CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
     ChangeUserCommand.execute(1, %{name: "other_name"})
     DeleteUserCommand.execute(1)
-    user = UserEventRepo.get_events_for_user_with(uuid: 1) 
-           |> UserStateHandler.current_state_from()
+    user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
     assert user == %{}
   end
 

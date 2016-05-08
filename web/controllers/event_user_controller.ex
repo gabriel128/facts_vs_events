@@ -42,14 +42,12 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def show(conn, %{"id" => uuid}) do
-    event_user = UserEventRepo.get_events_for_user_with(uuid: uuid) 
-                  |> UserStateHandler.current_state_from()
+    event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
     render(conn, "show.html", event_user: event_user)
   end
 
   def edit(conn, %{"id" => uuid}) do
-    event_user = UserEventRepo.get_events_for_user_with(uuid: uuid) 
-                  |> UserStateHandler.current_state_from()
+    event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
     render(conn, "edit.html", event_user: event_user)
   end
 
