@@ -41,7 +41,8 @@ defmodule FactsVsEvents.EventUserControllerTest do
   end
 
   test "creates resource and redirects when data is valid", %{conn: conn} do
-    with_auth_mocked do
+    {:ok, a_user} = Repo.insert %User{email: "some@mail", name: "some", event_uuids: []}
+    with_auth_mocked(a_user) do
       conn = post conn, event_user_path(conn, :create), event_user: %{email: "sdf", name: "sdf"}
       assert redirected_to(conn) == event_user_path(conn, :index)
     end
@@ -55,17 +56,17 @@ defmodule FactsVsEvents.EventUserControllerTest do
   end
 
   test "shows chosen resource", %{conn: conn} do
-    with_auth_mocked do
-      response = CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
-      event_user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
+    {user, event_uuid} = create_user_and_event
+    with_auth_mocked(user) do
+      event_user = UserEventRepo.find(uuid: event_uuid, with: UserStateHandler)
       conn = get conn, event_user_path(conn, :show, event_user.uuid)
       assert html_response(conn, 200) =~ "Show event user"
     end
   end
 
   test "renders form for editing chosen resource", %{conn: conn} do
-    with_auth_mocked do
-      CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
+    {user, event_uuid} = create_user_and_event
+    with_auth_mocked(user) do
       event_user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
       conn = get conn, event_user_path(conn, :edit, event_user.uuid)
       assert html_response(conn, 200) =~ "Edit event user"
@@ -95,6 +96,13 @@ defmodule FactsVsEvents.EventUserControllerTest do
       conn = delete conn, event_user_path(conn, :delete, 1)
       assert redirected_to(conn) == event_user_path(conn, :index)
     end
+  end
+
+  defp create_user_and_event() do
+    {:ok, a_user} = Repo.insert %User{email: "some@mail", name: "some", event_uuids: []}
+    {:ok, uuid} = CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
+    {:ok, a_user} = FactsVsEvents.UserEventsOwner.add_uuid_to_user(a_user, uuid)
+    {a_user, uuid}
   end
 end
 

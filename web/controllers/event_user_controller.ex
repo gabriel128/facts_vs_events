@@ -33,7 +33,6 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def create(conn, %{event_user: event_user_params}) do
-    #add with
     response = CreateUserCommand.execute(event_user_params)
     case response do
       {:ok, uuid} ->

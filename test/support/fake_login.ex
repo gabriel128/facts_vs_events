@@ -9,10 +9,19 @@ defmodule FactsVsEvents.FakeLogin do
     end
   end
 
+  defmacro with_auth_mocked(user, do: block) do
+    quote do
+      with_mock AuthService, [logged_in?: fn (_) -> true end, 
+       current_user: fn(_) -> unquote(user) end] do 
+         unquote(block)
+       end
+    end
+  end
+
   defmacro with_auth_mocked(do: block) do
     quote do
       with_mock AuthService, [logged_in?: fn (_) -> true end, 
-       current_user: fn(_) -> %{id: 1, email: "some@mail", name: "some"} end] do 
+       current_user: fn(_) -> %{id: 1, email: "some@mail", name: "some", event_uuids: []} end] do 
          unquote(block)
        end
     end
