@@ -3,14 +3,20 @@ defmodule FactsVsEvents.Events.CreateUserCommand do
   alias FactsVsEvents.Events.UserEvent
   alias FactsVsEvents.Events.UserRepo
 
-  def execute(%{email: nil, name: _}),  do: {:error, "Missing email"}
-  def execute(%{name: nil, email: _}),  do: {:error, "Missing name"}
 
-  def execute(%{name: _ , email: _ } = data, repo \\ UserRepo) do
-    last_uuid = repo.last_uuid
-    %UserEvent{uuid: last_uuid + 1, event_type: "UserCreated", data: data}
-    |> repo.insert()
-    |> CommandResponseTransformer.build_response_with_uuid(last_uuid)
+  def execute(data, repo \\ UserRepo) do
+    with {:ok} <- UserValidator.validate(data),
+         last_uuid = repo.last_uuid,
+         event = %UserEvent{uuid: last_uuid + 1, event_type: "UserCreated", data: data},
+         response <- repo.insert(event),
+         do: CommandResponseTransformer.build_response_with_uuid(response, last_uuid)
   end
-  def execute(%{}, _), do: {:error, "Missing attributes"}
+
+end
+
+defmodule UserValidator do
+  def validate(%{email: nil, name: _}),  do: {:error, "Missing email"}
+  def validate(%{name: nil, email: _}),  do: {:error, "Missing name"}
+  def validate(%{name: nil, email: nil}), do: {:error, "Missing attributes"}
+  def validate(_), do: {:ok}
 end
