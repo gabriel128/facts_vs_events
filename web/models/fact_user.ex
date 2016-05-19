@@ -1,4 +1,4 @@
-defmodule FactsVsEvents.FactUser do
+defmodule FactsVsEvents.Fact.User do
   use FactsVsEvents.Web, :model
 
   schema "fact_users" do
@@ -14,7 +14,6 @@ defmodule FactsVsEvents.FactUser do
 
   @required_fields ~w(name email owner_id)
   @optional_fields ~w()
-  # @optional_fields ~w(uuid transaction_id at fact commit_message)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

@@ -1,5 +1,5 @@
 defmodule FactsVsEvents.FactRepo do
-  alias FactsVsEvents.FactUser
+  alias FactsVsEvents.Fact.User
   alias FactsVsEvents.Repo
   import Ecto.Query, only: [from: 2]
 
@@ -55,5 +55,4 @@ defmodule FactsVsEvents.FactRepo do
     and u.owner_id == ^owner_id
     and u.fact != "deleted"
   end
-
 end

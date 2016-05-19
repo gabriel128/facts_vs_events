@@ -2,7 +2,7 @@ defmodule FactsVsEvents.FactUserControllerTest do
   use FactsVsEvents.ConnCase
   use FactsVsEvents.FakeLogin
 
-  alias FactsVsEvents.FactUser
+  alias FactsVsEvents.Fact.User
   alias FactsVsEvents.FactRepo
   @valid_attrs %{email: "some content", name: "some content", owner_id: 1}
   @invalid_attrs %{}
@@ -30,7 +30,7 @@ defmodule FactsVsEvents.FactUserControllerTest do
     with_auth_mocked do
       conn = post conn, fact_user_path(conn, :create), fact_user: @valid_attrs
       assert redirected_to(conn) == fact_user_path(conn, :index)
-      assert Repo.get_by(FactUser, @valid_attrs)
+      assert Repo.get_by(User, @valid_attrs)
     end
   end
 
@@ -43,8 +43,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
 
   test "shows chosen resource", %{conn: conn} do
     with_auth_mocked do
-      changeset = FactUser.changeset(%FactUser{}, @valid_attrs)
-      {:ok, fact_user } = FactRepo.create FactUser, changeset
+      changeset = User.changeset(%User{}, @valid_attrs)
+      {:ok, fact_user } = FactRepo.create User, changeset
       conn = get conn, fact_user_path(conn, :show, fact_user.uuid)
       assert html_response(conn, 200) =~ "Show fact user"
     end
@@ -60,8 +60,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
 
   test "renders form for editing chosen resource", %{conn: conn} do
     with_auth_mocked do
-      changeset = FactUser.changeset(%FactUser{}, @valid_attrs)
-      {:ok, fact_user } = FactRepo.create FactUser, changeset
+      changeset = User.changeset(%User{}, @valid_attrs)
+      {:ok, fact_user } = FactRepo.create User, changeset
       conn = get conn, fact_user_path(conn, :edit, fact_user.uuid)
       assert html_response(conn, 200) =~ "Edit fact user"
     end
@@ -69,8 +69,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
 
   test "updates chosen resource and redirects when data is valid", %{conn: conn} do
     with_auth_mocked do
-      changeset = FactUser.changeset(%FactUser{}, @valid_attrs)
-      {:ok, fact_user } = FactRepo.create FactUser, changeset
+      changeset = User.changeset(%User{}, @valid_attrs)
+      {:ok, fact_user } = FactRepo.create User, changeset
       conn = put conn, fact_user_path(conn, :update, fact_user.uuid), fact_user: %{name: "a_name"}
       assert redirected_to(conn) == fact_user_path(conn, :show, fact_user.uuid)
     end
@@ -78,8 +78,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
 
   test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
     with_auth_mocked do
-      changeset = FactUser.changeset(%FactUser{}, @valid_attrs)
-      {:ok, fact_user } = FactRepo.create FactUser, changeset
+      changeset = User.changeset(%User{}, @valid_attrs)
+      {:ok, fact_user } = FactRepo.create User, changeset
       conn = put conn, fact_user_path(conn, :update, fact_user.uuid), fact_user: %{"email": nil}
       assert html_response(conn, 200) =~ "Edit fact user"
     end
@@ -87,8 +87,8 @@ defmodule FactsVsEvents.FactUserControllerTest do
 
   test "deletes chosen resource", %{conn: conn} do
     with_auth_mocked do
-      changeset = FactUser.changeset(%FactUser{}, @valid_attrs)
-      {:ok, fact_user } = FactRepo.create FactUser, changeset
+      changeset = User.changeset(%User{}, @valid_attrs)
+      {:ok, fact_user } = FactRepo.create User, changeset
       conn = delete conn, fact_user_path(conn, :delete, fact_user.uuid)
       assert redirected_to(conn) == fact_user_path(conn, :index)
     end
