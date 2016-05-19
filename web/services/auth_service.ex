@@ -1,7 +1,7 @@
 #TODO use bcrypt
 defmodule FactsVsEvents.AuthService do
   alias FactsVsEvents.Repo
-  alias FactsVsEvents.User
+  alias FactsVsEvents.LoginUser
   import Ecto.Query, only: [from: 2]
 
   def register(user_changeset) do
@@ -10,7 +10,7 @@ defmodule FactsVsEvents.AuthService do
   end
 
   def login(changeset) do
-    user = Repo.get_by(User, email: String.downcase(changeset.params["email"]), 
+    user = Repo.get_by(LoginUser, email: String.downcase(changeset.params["email"]), 
                              encrypted_password: encrypted_pass(changeset))
     login_response_regarding(user, changeset)
   end
@@ -27,7 +27,7 @@ defmodule FactsVsEvents.AuthService do
   end
 
   defp fetch_current_user(id) do
-    Repo.get(User, id)
+    Repo.get(LoginUser, id)
   end
 
   defp login_response_regarding(nil, changeset) do
