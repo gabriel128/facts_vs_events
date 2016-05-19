@@ -1,10 +1,10 @@
 defmodule FactsVsEvents.EventUserControllerTest do
   use FactsVsEvents.ConnCase
-  alias FactsVsEvents.EventUser
-  alias FactsVsEvents.User
-  alias FactsVsEvents.CreateUserCommand
-  alias FactsVsEvents.UserStateHandler
-  alias FactsVsEvents.UserEventRepo
+  alias FactsVsEvents.Events.User
+  alias FactsVsEvents.LoginUser
+  alias FactsVsEvents.Events.CreateUserCommand
+  alias FactsVsEvents.Events.UserStateHandler
+  alias FactsVsEvents.Events.UserRepo
   use FactsVsEvents.FakeLogin
 
   @valid_attrs %{email: "some@content", password: "somecontent"}
@@ -41,33 +41,33 @@ defmodule FactsVsEvents.EventUserControllerTest do
   end
 
   test "creates resource and redirects when data is valid", %{conn: conn} do
-    {:ok, a_user} = Repo.insert %User{email: "some@mail", name: "some", event_uuids: []}
+    {:ok, a_user} = Repo.insert %LoginUser{email: "some@mail", name: "some", event_uuids: []}
     with_auth_mocked(a_user) do
-      conn = post conn, event_user_path(conn, :create), event_user: %{email: "sdf", name: "sdf"}
+      conn = post conn, event_user_path(conn, :create), user: %{email: "sdf", name: "sdf"}
       assert redirected_to(conn) == event_user_path(conn, :index)
     end
   end
 
   test "does not create resource and renders errors when data is invalid", %{conn: conn} do
     with_auth_mocked do
-      conn = post conn, event_user_path(conn, :create), event_user: @invalid_attrs
+      conn = post conn, event_user_path(conn, :create), user: @invalid_attrs
       assert html_response(conn, 200) =~ "New event user"
     end
   end
 
   test "shows chosen resource", %{conn: conn} do
-    {user, event_uuid} = create_user_and_event
-    with_auth_mocked(user) do
-      event_user = UserEventRepo.find(uuid: event_uuid, with: UserStateHandler)
-      conn = get conn, event_user_path(conn, :show, event_user.uuid)
+    {login_user, event_uuid} = create_login_user_and_event
+    with_auth_mocked(login_user) do
+      user = UserRepo.find(uuid: event_uuid, with: UserStateHandler)
+      conn = get conn, event_user_path(conn, :show, user.uuid)
       assert html_response(conn, 200) =~ "Show event user"
     end
   end
 
   test "renders form for editing chosen resource", %{conn: conn} do
-    {user, event_uuid} = create_user_and_event
+    {user, event_uuid} = create_login_user_and_event
     with_auth_mocked(user) do
-      event_user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
+      event_user = UserRepo.find(uuid: 1, with: UserStateHandler)
       conn = get conn, event_user_path(conn, :edit, event_user.uuid)
       assert html_response(conn, 200) =~ "Edit event user"
     end
@@ -76,8 +76,8 @@ defmodule FactsVsEvents.EventUserControllerTest do
   test "updates chosen resource and redirects when data is valid", %{conn: conn} do
     with_auth_mocked do
       CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
-      event_user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
-      conn = put conn, event_user_path(conn, :update, event_user.uuid), event_user: @valid_attrs
+      user = UserRepo.find(uuid: 1, with: UserStateHandler)
+      conn = put conn, event_user_path(conn, :update, user.uuid), user: @valid_attrs
       assert redirected_to(conn) == event_user_path(conn, :index)
     end
   end
@@ -85,8 +85,8 @@ defmodule FactsVsEvents.EventUserControllerTest do
   test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
     with_auth_mocked do
       CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
-      event_user = UserEventRepo.find(uuid: 1, with: UserStateHandler)
-      conn = put conn, event_user_path(conn, :update, event_user.uuid), event_user: @invalid_attrs
+      user = UserRepo.find(uuid: 1, with: UserStateHandler)
+      conn = put conn, event_user_path(conn, :update, user.uuid), user: @invalid_attrs
       assert html_response(conn, 302)
     end
   end
@@ -98,10 +98,10 @@ defmodule FactsVsEvents.EventUserControllerTest do
     end
   end
 
-  defp create_user_and_event() do
-    {:ok, a_user} = Repo.insert %User{email: "some@mail", name: "some", event_uuids: []}
+  defp create_login_user_and_event() do
+    {:ok, a_user} = Repo.insert %LoginUser{email: "some@mail", name: "some", event_uuids: []}
     {:ok, uuid} = CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
-    {:ok, a_user} = FactsVsEvents.UserEventsOwner.add_uuid_to_user(a_user, uuid)
+    {:ok, a_user} = FactsVsEvents.EventsUuidMapper.add_uuid_to_user(a_user, uuid)
     {a_user, uuid}
   end
 end

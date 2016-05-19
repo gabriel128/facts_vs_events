@@ -4,15 +4,15 @@
 
   <li>
     <strong>Name:</strong>
-    <%= @event_user.name %>
+    <%= @user.name %>
   </li>
 
   <li>
     <strong>Email:</strong>
-    <%= @event_user.email %>
+    <%= @user.email %>
   </li>
 
 </ul>
 
-<%= link "Edit", to: event_user_path(@conn, :edit, @event_user.uuid) %>
+<%= link "Edit", to: event_user_path(@conn, :edit, @user.uuid) %>
 <%= link "Back", to: event_user_path(@conn, :index) %>

@@ -1,4 +1,4 @@
-defmodule FactsVsEvents.EventUser do
+defmodule FactsVsEvents.Events.User do
   defstruct uuid: 0, name: "", email: ""
   # use FactsVsEvents.Web, :model
 

@@ -1,5 +1,5 @@
-defmodule FactsVsEvents.UserStateHandler do
-  alias FactsVsEvents.EventUser
+defmodule FactsVsEvents.Events.UserStateHandler do
+  alias FactsVsEvents.Events.User
   alias FactsVsEvents.JsonTransformer
 
   def all(event_uuids, [with_repo: repo]) do
@@ -20,13 +20,13 @@ defmodule FactsVsEvents.UserStateHandler do
   defp handle(event, "UserCreated", acc) do
     data = JsonTransformer.keys_to_atoms(event.data)
     user_hash = Map.merge(acc, data) |> Map.merge(%{uuid: event.uuid})
-    Map.merge %EventUser{}, user_hash 
+    Map.merge %User{}, user_hash 
   end
 
   defp handle(event, "UserChanged", acc) do
     data = JsonTransformer.keys_to_atoms(event.data)
     user_hash = Map.merge(acc, data)
-    Map.merge %EventUser{}, user_hash 
+    Map.merge %User{}, user_hash 
   end
 
   defp handle(_, "UserDeleted", _) do

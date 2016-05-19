@@ -1,4 +1,4 @@
-defmodule FactsVsEvents.User do
+defmodule FactsVsEvents.LoginUser do
   use FactsVsEvents.Web, :model
 
   schema "users" do

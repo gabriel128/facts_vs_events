@@ -1,17 +1,17 @@
 # TODO
-# - Create Command should have name and email validation
 # - Change Command should search if Create one is already there validation
 defmodule FactsVsEvents.CreateUserCommandTest do
   use FactsVsEvents.ModelCase
   alias FactsVsEvents.Repo
-  alias FactsVsEvents.UserEvent
-  alias FactsVsEvents.CreateUserCommand
-  alias FactsVsEvents.ChangeUserCommand
-  alias FactsVsEvents.DeleteUserCommand
+  alias FactsVsEvents.Events.UserRepo
+  alias FactsVsEvents.Events.UserEvent
+  alias FactsVsEvents.Events.CreateUserCommand
+  alias FactsVsEvents.Events.ChangeUserCommand
+  alias FactsVsEvents.Events.DeleteUserCommand
   import Ecto.Query, only: [from: 2]
 
   test "create user creates UserCreated event" do
-    {:ok, uuid} = CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
+    {:ok, uuid} = CreateUserCommand.execute(%{name: "a_name", email: "an_email"}, UserRepo)
     found_records = Repo.all(from e in UserEvent, where: e.event_type == "UserCreated")
     assert length(found_records) == 1
   end

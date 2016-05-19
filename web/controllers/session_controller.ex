@@ -1,13 +1,13 @@
 defmodule FactsVsEvents.SessionController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.User
+  alias FactsVsEvents.LoginUser
 
   def new(conn, _params) do
     render conn, "new.html"
   end
 
   def create(conn, %{"session" => session_params}) do
-    changeset = User.changeset(%User{}, session_params)
+    changeset = LoginUser.changeset(%LoginUser{}, session_params)
     case FactsVsEvents.AuthService.login(changeset) do
       {:ok, user} ->
         conn

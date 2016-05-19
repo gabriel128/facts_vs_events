@@ -1,14 +1,14 @@
 <%= form_for @conn, @action, @options, fn f -> %>
   <div class="form-group">
-    <%= label(:event_user, :name, class: "control-label") %>
-    <input id="event_user_name" name="event_user[name]" 
-     type="text" value="<%= @event_user.name %>" class="form-control">
+    <%= label(:user, :name, class: "control-label") %>
+    <input id="user_name" name="user[name]" 
+     type="text" value="<%= @user.name %>" class="form-control">
   </div>
 
   <div class="form-group">
-    <%= label :event_user, :email, class: "control-label" %>
-    <input id="event_user_email" name="event_user[email]" 
-     type="text" value="<%= @event_user.email %>" class="form-control">
+    <%= label :user, :email, class: "control-label" %>
+    <input id="user_email" name="user[email]" 
+     type="text" value="<%= @user.email %>" class="form-control">
   </div>
 
   <div class="form-group">

@@ -1,14 +1,14 @@
 defmodule FactsVsEvents.RegistrationController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.User
+  alias FactsVsEvents.LoginUser
 
   def new(conn, _params) do
-    changeset = User.changeset(%User{})
+    changeset = LoginUser.changeset(%LoginUser{})
     render conn, changeset: changeset
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.changeset(%User{}, user_params)
+    changeset = LoginUser.changeset(%LoginUser{}, user_params)
 
     case FactsVsEvents.AuthService.register(changeset) do
       {:ok, user} ->

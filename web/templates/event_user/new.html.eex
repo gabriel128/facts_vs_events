@@ -6,7 +6,7 @@
   </div>
 <% end %>
 
-<%= render "form.html", event_user: @event_user,
+<%= render "form.html", user: @user,
                         conn: @conn,
                         action: event_user_path(@conn, :create),
                         options: [as: :event_user] %>

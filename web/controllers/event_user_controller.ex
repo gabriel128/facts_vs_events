@@ -1,77 +1,74 @@
 defmodule FactsVsEvents.EventUserController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.CreateUserCommand
-  alias FactsVsEvents.ChangeUserCommand
-  alias FactsVsEvents.DeleteUserCommand
-  alias FactsVsEvents.UserStateHandler
-  alias FactsVsEvents.EventUser
-  alias FactsVsEvents.UserEvent
-  alias FactsVsEvents.UserEventRepo
+  alias FactsVsEvents.Events.CreateUserCommand
+  alias FactsVsEvents.Events.ChangeUserCommand
+  alias FactsVsEvents.Events.DeleteUserCommand
+  alias FactsVsEvents.Events.UserStateHandler
+  alias FactsVsEvents.Events.User
+  alias FactsVsEvents.Events.UserEvent
+  alias FactsVsEvents.Events.UserRepo
   alias FactsVsEvents.JsonTransformer
-  alias FactsVsEvents.UserEventsOwner
+  alias FactsVsEvents.EventsUuidMapper
+  alias FactsVsEvents.Events.LoginUserEventFilter
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
-  plug :scrub_params, "event_user" when action in [:create, :update]
+  plug :scrub_params, "user" when action in [:create, :update]
   plug :params_keys_to_atoms when action in [:create]
 
   def params_keys_to_atoms(conn, _) do
-    params = JsonTransformer.keys_to_atoms(conn.params["event_user"])
-    %{conn | params: %{event_user: params}}
+    params = JsonTransformer.keys_to_atoms(conn.params["user"])
+    %{conn | params: %{user: params}}
   end
 
   def index(conn, _params) do
-    event_users = UserEventRepo.uuids
-                  |> UserStateHandler.all(with_repo: UserEventRepo)
-                  |> UserEventsOwner.filter_events_given(current_user(conn))
+    users = UserRepo.uuids
+            |> UserStateHandler.all(with_repo: UserRepo)
+            |> LoginUserEventFilter.filter_events_given(current_user(conn))
     events = Repo.all(UserEvent)
-             |> UserEventsOwner.filter_events_given(current_user(conn))
-    render(conn, "index.html", event_users: event_users, events: events)
+             |> LoginUserEventFilter.filter_events_given(current_user(conn))
+    render(conn, "index.html", users: users, events: events)
   end
 
   def new(conn, _params) do
-    render(conn, "new.html", event_user: %EventUser{})
+    render(conn, "new.html", user: %User{})
   end
 
-  def create(conn, %{event_user: event_user_params}) do
-    response = CreateUserCommand.execute(event_user_params)
+  def create(conn, %{user: user_params}) do
+    response = CreateUserCommand.execute(user_params)
     case response do
       {:ok, uuid} ->
-        UserEventsOwner.add_uuid_to_user(current_user(conn), uuid)
+        EventsUuidMapper.add_uuid_to_user(current_user(conn), uuid)
         conn
         |> put_flash(:info, "Event user created successfully.")
         |> redirect(to: event_user_path(conn, :index))
       {:error, errors} -> 
-        event_user = Map.merge %EventUser{}, event_user_params
-        render(conn, "new.html", event_user: event_user, errors: errors)
+        user = Map.merge %User{}, user_params
+        render(conn, "new.html", user: user, errors: errors)
     end
   end
 
   #TODO filter if user has uuid
   def show(conn, %{"id" => uuid}) do
-    event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
-                 |> UserEventsOwner.filter_event_given(current_user(conn))
-    case event_user do
-      {:ok, event_user} -> render(conn, "show.html", event_user: event_user)
+    fetch_user_and_render(conn, uuid, "show.html")
+  end
+
+  defp fetch_user_and_render(conn, uuid, template) do
+    user = UserRepo.find(uuid: uuid, with: UserStateHandler)
+           |> LoginUserEventFilter.filter_single_event_given(current_user(conn))
+    case user do
+      {:ok, user} -> render(conn, template, user: user)
       {:error} -> 
-       conn
-       |> put_status(:not_found)
-       |> render(FactsVsEvents.ErrorView, "404.html")
+         conn
+         |> put_status(:not_found)
+         |> render(FactsVsEvents.ErrorView, "404.html")
     end
   end
 
   def edit(conn, %{"id" => uuid}) do
-    event_user = UserEventRepo.find(uuid: uuid, with: UserStateHandler)
-                 |> UserEventsOwner.filter_event_given(current_user(conn))
-    case event_user do
-      {:ok, event_user} -> render(conn, "edit.html", event_user: event_user)
-      {:error} -> 
-       conn
-       |> put_status(:not_found)
-       |> render(FactsVsEvents.ErrorView, "404.html")
-    end
+    fetch_user_and_render(conn, uuid, "edit.html")
   end
 
-  def update(conn, %{"id" => uuid, "event_user" => event_user_params}) do
+  def update(conn, %{"id" => uuid, "user" => event_user_params}) do
     response = String.to_integer(uuid)
                |> ChangeUserCommand.execute(event_user_params)
     case response do
@@ -81,8 +78,8 @@ defmodule FactsVsEvents.EventUserController do
         |> redirect(to: event_user_path(conn, :index))
       {:error, errors} -> 
         params = JsonTransformer.keys_to_atoms(event_user_params)
-        event_user = Map.merge %EventUser{}, params
-        render(conn, "edit.html", event_user: %{ event_user | uuid: uuid}, errors: errors)
+        user = Map.merge %User{}, params
+        render(conn, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
     end
   end
 
