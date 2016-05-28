@@ -7,18 +7,19 @@ defmodule FactsVsEvents.SessionController do
   end
 
   def create(conn, %{"session" => session_params}) do
-    changeset = LoginUser.changeset(%LoginUser{}, session_params)
-    case FactsVsEvents.AuthService.login(changeset) do
-      {:ok, user} ->
-        conn
-        |> put_session(:current_user, user.id)
-        |> put_flash(:info, "Logged in")
-        |> redirect(to: "/")
-      {:error, changeset} ->
-        conn
-        |> put_flash(:info, "Wrong email or password")
-        |> render("new.html")
-    end
+    LoginUser.changeset(%LoginUser{}, session_params)
+    |> FactsVsEvents.AuthService.login()
+    |> case do
+        {:ok, user} ->
+          conn
+          |> put_session(:current_user, user.id)
+          |> put_flash(:info, "Logged in")
+          |> redirect(to: "/")
+        {:error, changeset} ->
+          conn
+          |> put_flash(:info, "Wrong email or password")
+          |> render("new.html")
+      end
   end
 
   def delete(conn, _) do
