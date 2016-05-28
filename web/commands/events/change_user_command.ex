@@ -3,15 +3,14 @@ defmodule FactsVsEvents.Events.ChangeUserCommand do
   alias FactsVsEvents.Events.UserStateHandler
   alias FactsVsEvents.Events.CommandResponseTransformer
   alias FactsVsEvents.Events.UserEvent
-
-  def execute(_, %{email: nil, name: _}),  do: {:error, "Missing email"}
-  def execute(_, %{email: _, name: nil }),  do: {:error, "Missing name"}
+  alias FactsVsEvents.Events.UserValidator
 
   def execute(uuid, data, repo \\ UserRepo) do
-    %UserEvent{uuid: uuid, event_type: "UserChanged",
-               data: Map.new(new_data_with(uuid, data, repo))}
-    |> repo.insert()
-    |> CommandResponseTransformer.build_response()
+    with {:ok} <- UserValidator.validate(data),
+          event = %UserEvent{uuid: uuid, event_type: "UserChanged",
+                             data: Map.new(new_data_with(uuid, data, repo))},
+          response <-  repo.insert(event),
+          do: CommandResponseTransformer.build_response(response)
   end
 
   defp new_data_with(uuid, data, repo) do
