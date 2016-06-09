@@ -24,14 +24,13 @@ defmodule FactsVsEvents.FactUserController do
   def create(conn, %{"fact_user" => fact_user_params}) do
     fact_user = Map.merge(fact_user_params, %{"owner_id" => current_user(conn).id})
     changeset = User.changeset(%User{}, fact_user)
-
-    case FactRepo.create(User, changeset, commit_message: "Create new user from FactUserController") do
+    FactRepo.create(User, changeset, commit_message: "Create new user from FactUserController")
+    |> case do
       {:ok, _fact_user} ->
         conn
         |> put_flash(:info, "Fact user created successfully.")
         |> redirect(to: fact_user_path(conn, :index))
-      {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+      {:error, changeset} -> render(conn, "new.html", changeset: changeset)
     end
   end
 
@@ -48,9 +47,9 @@ defmodule FactsVsEvents.FactUserController do
 
   def update(conn, %{"id" => uuid, "fact_user" => fact_user_params}) do
     fact_user = FactRepo.get!(User, uuid, owner_id: current_user(conn).id)
-    changeset = User.changeset(fact_user, fact_user_params)
-
-    case FactRepo.update(changeset, commit_message: "Update user from fact_user_controller") do
+    User.changeset(fact_user, fact_user_params)
+    |> FactRepo.update(commit_message: "Update user from fact_user_controller")
+    |> case do
       {:ok, fact_user} ->
         conn
         |> put_flash(:info, "Fact user updated successfully.")

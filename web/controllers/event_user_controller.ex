@@ -34,8 +34,8 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def create(conn, %{user: user_params}) do
-    response = CreateUserCommand.execute(user_params)
-    case response do
+    CreateUserCommand.execute(user_params)
+    |> case do
       {:ok, uuid} ->
         EventsUuidMapper.add_uuid_to_user(current_user(conn), uuid)
         conn
@@ -53,14 +53,14 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   defp fetch_user_and_render(conn, uuid, template) do
-    user = UserRepo.find(uuid: uuid, with: UserStateHandler)
-           |> LoginUserEventFilter.filter_single_event_given(current_user(conn))
-    case user do
-      {:ok, user} -> render(conn, template, user: user)
-      {:error} -> 
-         conn
-         |> put_status(:not_found)
-         |> render(FactsVsEvents.ErrorView, "404.html")
+    UserRepo.find(uuid: uuid, with: UserStateHandler)
+    |> LoginUserEventFilter.filter_single_event_given(current_user(conn))
+    |> case do
+        {:ok, user} -> render(conn, template, user: user)
+        {:error} ->
+           conn
+           |> put_status(:not_found)
+           |> render(FactsVsEvents.ErrorView, "404.html")
     end
   end
 
