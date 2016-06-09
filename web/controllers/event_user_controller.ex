@@ -1,3 +1,9 @@
+#TODO
+# - Initialize Supervisor in app
+# - Add user to UserReadingCache in create
+# - User Cache in index
+# - Update Cache on update
+# - Delete Cache on delete
 defmodule FactsVsEvents.EventUserController do
   use FactsVsEvents.Web, :controller
   alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, 
