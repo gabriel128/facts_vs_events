@@ -21,11 +21,13 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def index(conn, _params) do
-    users = UserRepo.uuids
-            |> UserStateHandler.all(with_repo: UserRepo)
-            |> LoginUserEventFilter.filter_events_given(current_user(conn))
-    events = Repo.all(UserEvent)
-             |> LoginUserEventFilter.filter_events_given(current_user(conn))
+    users =
+      UserRepo.uuids
+      |> UserStateHandler.all(with_repo: UserRepo)
+      |> LoginUserEventFilter.filter_events_given(current_user(conn))
+    events =
+      Repo.all(UserEvent)
+      |> LoginUserEventFilter.filter_events_given(current_user(conn))
     render(conn, "index.html", users: users, events: events)
   end
 
@@ -68,23 +70,22 @@ defmodule FactsVsEvents.EventUserController do
   end
 
   def update(conn, %{"id" => uuid, "user" => event_user_params}) do
-    response = String.to_integer(uuid)
-               |> ChangeUserCommand.execute(event_user_params)
-    case response do
-      {:ok} ->
-        conn
-        |> put_flash(:info, "Event user updated successfully.")
-        |> redirect(to: event_user_path(conn, :index))
-      {:error, errors} -> 
-        params = JsonTransformer.keys_to_atoms(event_user_params)
-        user = Map.merge %User{}, params
-        render(conn, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
-    end
+    String.to_integer(uuid)
+    |> ChangeUserCommand.execute(event_user_params)
+    |> case do
+        {:ok} ->
+          conn
+          |> put_flash(:info, "Event user updated successfully.")
+          |> redirect(to: event_user_path(conn, :index))
+        {:error, errors} -> 
+          params = JsonTransformer.keys_to_atoms(event_user_params)
+          user = Map.merge %User{}, params
+          render(conn, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
+      end
   end
 
   def delete(conn, %{"id" => uuid}) do
-    String.to_integer(uuid)
-    |> DeleteUserCommand.execute()
+    String.to_integer(uuid) |> DeleteUserCommand.execute()
     conn
     |> put_flash(:info, "Event user deleted successfully.")
     |> redirect(to: event_user_path(conn, :index))

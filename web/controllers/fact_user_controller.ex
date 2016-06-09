@@ -10,8 +10,7 @@ defmodule FactsVsEvents.FactUserController do
 
   def index(conn, _params) do
     current_user_id = current_user(conn).id
-    all_table_users = Repo.all(from u in User, 
-                               where: u.owner_id == ^current_user_id)
+    all_table_users = Repo.all(from u in User, where: u.owner_id == ^current_user_id)
     fact_users = FactRepo.all(User, owner_id: current_user_id)
     render(conn, "index.html", fact_users: fact_users, all_table_users: all_table_users)
   end
@@ -23,15 +22,16 @@ defmodule FactsVsEvents.FactUserController do
 
   def create(conn, %{"fact_user" => fact_user_params}) do
     fact_user = Map.merge(fact_user_params, %{"owner_id" => current_user(conn).id})
-    changeset = User.changeset(%User{}, fact_user)
-    FactRepo.create(User, changeset, commit_message: "Create new user from FactUserController")
+    User.changeset(%User{}, fact_user)
+    |> FactRepo.create(User, commit_message: "Create from FactUserController")
     |> case do
       {:ok, _fact_user} ->
         conn
         |> put_flash(:info, "Fact user created successfully.")
         |> redirect(to: fact_user_path(conn, :index))
-      {:error, changeset} -> render(conn, "new.html", changeset: changeset)
-    end
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
+      end
   end
 
   def show(conn, %{"id" => uuid}) do
@@ -47,16 +47,16 @@ defmodule FactsVsEvents.FactUserController do
 
   def update(conn, %{"id" => uuid, "fact_user" => fact_user_params}) do
     fact_user = FactRepo.get!(User, uuid, owner_id: current_user(conn).id)
-    User.changeset(fact_user, fact_user_params)
+    changeset = User.changeset(fact_user, fact_user_params)
     |> FactRepo.update(commit_message: "Update user from fact_user_controller")
     |> case do
-      {:ok, fact_user} ->
-        conn
-        |> put_flash(:info, "Fact user updated successfully.")
-        |> redirect(to: fact_user_path(conn, :show, fact_user.uuid))
-      {:error, changeset} ->
-        render(conn, "edit.html", fact_user: fact_user, changeset: changeset)
-    end
+        {:ok, fact_user} ->
+          conn
+          |> put_flash(:info, "Fact user updated successfully.")
+          |> redirect(to: fact_user_path(conn, :index))
+        {:error, changeset} ->
+          render(conn, "edit.html", fact_user: fact_user, changeset: changeset)
+       end
   end
 
   def delete(conn, %{"id" => uuid}) do
