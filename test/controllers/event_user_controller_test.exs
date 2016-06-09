@@ -50,7 +50,8 @@ defmodule FactsVsEvents.EventUserControllerTest do
 
   test "does not create resource and renders errors when data is invalid", %{conn: conn} do
     with_auth_mocked do
-      conn = post conn, event_user_path(conn, :create), user: @invalid_attrs
+      conn = post conn, event_user_path(conn, :create), 
+             user: %{email: nil, name: "sdf"}
       assert html_response(conn, 200) =~ "New event user"
     end
   end

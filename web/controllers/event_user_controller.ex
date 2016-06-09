@@ -1,15 +1,9 @@
 defmodule FactsVsEvents.EventUserController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.Events.CreateUserCommand
-  alias FactsVsEvents.Events.ChangeUserCommand
-  alias FactsVsEvents.Events.DeleteUserCommand
-  alias FactsVsEvents.Events.UserStateHandler
-  alias FactsVsEvents.Events.User
-  alias FactsVsEvents.Events.UserEvent
-  alias FactsVsEvents.Events.UserRepo
-  alias FactsVsEvents.JsonTransformer
-  alias FactsVsEvents.EventsUuidMapper
-  alias FactsVsEvents.Events.LoginUserEventFilter
+  alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, 
+                              DeleteUserCommand, UserStateHandler, 
+                              User, UserEvent, UserRepo, LoginUserEventFilter}
+  alias FactsVsEvents.{JsonTransformer, EventsUuidMapper}
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
   plug :scrub_params, "user" when action in [:create, :update]
@@ -47,7 +41,6 @@ defmodule FactsVsEvents.EventUserController do
     end
   end
 
-  #TODO filter if user has uuid
   def show(conn, %{"id" => uuid}) do
     fetch_user_and_render(conn, uuid, "show.html")
   end
