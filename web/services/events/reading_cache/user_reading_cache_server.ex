@@ -20,9 +20,8 @@ defmodule FactsVsEvents.Events.UserReadingCacheServer do
   end
 
   def handle_call({:delete_user, uuid}, _from, users) do
-    user_to_delete = Enum.filter(users, fn (user) -> user.uuid == uuid end)
-    users = List.delete(users, user_to_delete)
-    {:reply, :ok, users}
+    users_without_deleted = Enum.filter(users, fn (user) -> user.uuid != uuid end)
+    {:reply, :ok, users_without_deleted}
   end
 
   def handle_call({:get_user_by_uuid, uuid}, _from,  users) do
@@ -32,6 +31,6 @@ defmodule FactsVsEvents.Events.UserReadingCacheServer do
 
   def handle_call({:update_user, uuid, user}, _from, users) do
     list_without_user = Enum.filter(users, fn (user) -> user.uuid != uuid end)  
-    {:reply, user, [user | users]}
+    {:reply, user, [user | list_without_user]}
   end
 end

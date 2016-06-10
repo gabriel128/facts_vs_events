@@ -1,12 +1,6 @@
-#TODO
-# - Initialize Supervisor in app
-# - Add user to UserReadingCache in create
-# - User Cache in index
-# - Update Cache on update
-# - Delete Cache on delete
 defmodule FactsVsEvents.EventUserTransformationController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, DeleteUserCommand, User}
+  alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, DeleteUserCommand, UserRepo, User, UserStateHandler, UserReadingCache}
   alias FactsVsEvents.{JsonTransformer, EventsUuidMapper}
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
@@ -23,6 +17,7 @@ defmodule FactsVsEvents.EventUserTransformationController do
     |> case do
       {:ok, uuid} ->
         EventsUuidMapper.add_uuid_to_user(current_user(conn), uuid)
+        UserReadingCache.add_user(UserRepo.find(uuid: uuid, with: UserStateHandler))
         conn
         |> put_flash(:info, "Event user created successfully.")
         |> redirect(to: event_user_path(conn, :index))
@@ -37,6 +32,8 @@ defmodule FactsVsEvents.EventUserTransformationController do
     |> ChangeUserCommand.execute(event_user_params)
     |> case do
         {:ok} ->
+          String.to_integer(uuid)
+          |> UserReadingCache.update_user(UserRepo.find(uuid: uuid, with: UserStateHandler))
           conn
           |> put_flash(:info, "Event user updated successfully.")
           |> redirect(to: event_user_path(conn, :index))
@@ -48,6 +45,7 @@ defmodule FactsVsEvents.EventUserTransformationController do
 
   def delete(conn, %{"id" => uuid}) do
     String.to_integer(uuid) |> DeleteUserCommand.execute()
+    String.to_integer(uuid) |> UserReadingCache.delete_user()
     conn
     |> put_flash(:info, "Event user deleted successfully.")
     |> redirect(to: event_user_path(conn, :index))
