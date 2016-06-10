@@ -1,27 +1,23 @@
 defmodule FactsVsEvents.Events.UserReadingCache do
   alias FactsVsEvents.Events.UserReadingCacheServer
 
-  def start_link() do
-    UserReadingCacheServer.start_link()
+  def add_user(user, server_name \\ :reading_cache) do
+    GenServer.call(server_name, {:add_user, user})
   end
 
-  def add_user(user) do
-    GenServer.call(:reading_cache, {:add_user, user})
+  def all_users(server_name \\ :reading_cache) do
+    GenServer.call(server_name, :all_users)
   end
 
-  def all_users() do
-    GenServer.call(:reading_cache, :all_users)
+  def get_user_by_uuid(uuid, server_name \\ :reading_cache ) do
+    GenServer.call(server_name, {:get_user_by_uuid, uuid})
   end
 
-  def get_user_by_uuid(uuid) do
-    GenServer.call(:reading_cache, {:get_user_by_uuid, uuid})
+  def delete_user(uuid, server_name \\ :reading_cache ) do
+    GenServer.call(server_name, {:delete_user, uuid})
   end
 
-  def delete_user(uuid) do
-    GenServer.call(:reading_cache, {:delete_user, uuid})
-  end
-
-  def update_user(uuid, user) do
-    GenServer.call(:reading_cache, {:update_user, uuid, user})
+  def update_user(uuid, user, server_name \\ :reading_cache) do
+    GenServer.call(server_name, {:update_user, uuid, user})
   end
 end

@@ -1,14 +1,14 @@
 defmodule FactsVsEvents.Events.UserReadingCacheSupervisor do
   use Supervisor
-  alias FactsVsEvents.Events.UserReadingCache
+  alias FactsVsEvents.Events.UserReadingCacheServer
 
-  def start_link do
-    Supervisor.start_link(__MODULE__, [])
+  def start_link(name \\ :reading_cache) do
+    Supervisor.start_link(__MODULE__, name)
   end
 
-  def init(_) do
+  def init(name) do
     children = [
-      worker(UserReadingCache, [])
+      worker(UserReadingCacheServer, [name])
     ]
 
     supervise(children, strategy: :one_for_one)

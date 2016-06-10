@@ -102,6 +102,7 @@ defmodule FactsVsEvents.EventUserControllerTest do
     {:ok, a_user} = Repo.insert %LoginUser{email: "some@mail", name: "some", event_uuids: []}
     {:ok, uuid} = CreateUserCommand.execute(%{name: "sdf", email: "asdf"})
     {:ok, a_user} = FactsVsEvents.EventsUuidMapper.add_uuid_to_user(a_user, uuid)
+    Process.whereis(:reading_cache) |> Process.exit(:kill) #TODO Replace this hack for reseting the reading cache state!!!
     {a_user, uuid}
   end
 end

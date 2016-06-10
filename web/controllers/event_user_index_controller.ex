@@ -1,12 +1,11 @@
 defmodule FactsVsEvents.EventUserGetController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.Events.{User, UserStateHandler, UserEvent, UserRepo, LoginUserEventFilter}
+  alias FactsVsEvents.Events.{UserReadingCache, User, UserEvent, UserRepo, LoginUserEventFilter}
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
   def index(conn, _params) do
     users =
-      UserRepo.uuids
-      |> UserStateHandler.all(with_repo: UserRepo)
+      UserReadingCache.all_users
       |> LoginUserEventFilter.filter_events_given(current_user(conn))
     events =
       Repo.all(UserEvent)
@@ -27,7 +26,8 @@ defmodule FactsVsEvents.EventUserGetController do
   end
 
   defp fetch_user_and_render(conn, uuid, template) do
-    UserRepo.find(uuid: uuid, with: UserStateHandler)
+    String.to_integer(uuid)
+    |> UserReadingCache.get_user_by_uuid()
     |> LoginUserEventFilter.filter_single_event_given(current_user(conn))
     |> case do
         {:ok, user} -> render(conn, FactsVsEvents.EventUserView, template, user: user)

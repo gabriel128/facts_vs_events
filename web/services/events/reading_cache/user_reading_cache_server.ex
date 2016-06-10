@@ -2,8 +2,8 @@ defmodule FactsVsEvents.Events.UserReadingCacheServer do
   use GenServer
   alias FactsVsEvents.Events.{User, UserStateHandler, UserRepo}
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, [], name: :reading_cache)
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   def init(_) do
