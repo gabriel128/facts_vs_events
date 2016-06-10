@@ -21,7 +21,6 @@ defmodule FactsVsEvents.Router do
     pipe_through [:browser, :authenticated]
 
     resources "/event_user", EventUserGetController, only: [:index, :new, :edit, :show], as: :event_user
-    # get "/event_user", EventUserNewController, :new, as: :event_user
     resources "/event_user", EventUserTransformationController, only: [:create, :update, :delete], as: :event_user
     resources "/fact_user", FactUserController
   end

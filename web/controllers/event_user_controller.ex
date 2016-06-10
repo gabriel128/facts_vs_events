@@ -6,9 +6,7 @@
 # - Delete Cache on delete
 defmodule FactsVsEvents.EventUserTransformationController do
   use FactsVsEvents.Web, :controller
-  alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, 
-                              DeleteUserCommand, UserStateHandler, 
-                              User, UserEvent, LoginUserEventFilter}
+  alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, DeleteUserCommand, User}
   alias FactsVsEvents.{JsonTransformer, EventsUuidMapper}
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
@@ -43,8 +41,7 @@ defmodule FactsVsEvents.EventUserTransformationController do
           |> put_flash(:info, "Event user updated successfully.")
           |> redirect(to: event_user_path(conn, :index))
         {:error, errors} -> 
-          params = JsonTransformer.keys_to_atoms(event_user_params)
-          user = Map.merge %User{}, params
+          user = Map.merge %User{}, event_user_params
           render(conn, FactsVsEvents.EventUserView, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
       end
   end
