@@ -44,8 +44,9 @@ defmodule FactsVsEvents.EventUserTransformationController do
   end
 
   def delete(conn, %{"id" => uuid}) do
-    String.to_integer(uuid) |> DeleteUserCommand.execute()
-    String.to_integer(uuid) |> UserReadingCache.delete_user()
+    uuid = String.to_integer(uuid)
+    DeleteUserCommand.execute(uuid)
+    UserReadingCache.delete_user(uuid)
     conn
     |> put_flash(:info, "Event user deleted successfully.")
     |> redirect(to: event_user_path(conn, :index))
