@@ -25,20 +25,31 @@ defmodule UserReadingCacheServer do
 
   def init(_) do
     users = UserRepo.uuids |> UserStateHandler.all(with_repo: UserRepo)
-    {:ok, users}
-  end
-
-  def handle_cast({:add_user, user}, users) do
-    {:noreply, [ user | users ]}
+    {:ok, users || []}
   end
 
   def handle_call(:all_users, _from,  users) do
     {:reply, users, users}
   end
 
+  def handle_call({:add_user, user}, _from, users) do
+    {:reply, user, [ user | users ]}
+  end
+
+  def handle_call({:delete_user, uuid}, _from, users) do
+    user_to_delete = Enum.filter(users, fn (user) -> user.uuid == uuid end)
+    users = List.delete(users, user_to_delete)
+    {:reply, :ok, users}
+  end
+
   def handle_call({:get_user_by_uuid, uuid}, _from,  users) do
     user = Enum.filter(users, fn (user) -> user.uuid == uuid end) |> List.first
-    {:reply, user, user}
+    {:reply, user, users}
+  end
+
+  def handle_call({:update_user, uuid, user}, _from, users) do
+    list_without_user = Enum.filter(users, fn (user) -> user.uuid != uuid end)  
+    {:reply, user, [user | users]}
   end
 end
 
@@ -49,7 +60,7 @@ defmodule UserReadingCache do
   end
 
   def add_user(user) do
-    GenServer.cast(:reading_cache, {:add_user, user})
+    GenServer.call(:reading_cache, {:add_user, user})
   end
 
   def all_users() do
@@ -58,6 +69,14 @@ defmodule UserReadingCache do
 
   def get_user_by_uuid(uuid) do
     GenServer.call(:reading_cache, {:get_user_by_uuid, uuid})
+  end
+
+  def delete_user(uuid) do
+    GenServer.call(:reading_cache, {:delete_user, uuid})
+  end
+
+  def update_user(uuid, user) do
+    GenServer.call(:reading_cache, {:update_user, uuid, user})
   end
 end
 
@@ -92,5 +111,28 @@ defmodule FactsVsEvents.ATest do
     CreateUserCommand.execute(%{name: "a_name", email: "asdf"})
     UserReadingCacheSupervisor.start_link
     assert UserReadingCache.get_user_by_uuid(2).name == "a_name"
+  end
+
+  test "add" do
+    UserReadingCacheSupervisor.start_link
+    UserReadingCache.add_user(%{name: 3})
+    UserReadingCache.add_user(%{name: 3})
+    assert length(UserReadingCache.all_users) == 2
+  end
+  
+  test "delete" do
+    UserReadingCacheSupervisor.start_link
+    UserReadingCache.add_user(%{uuid: 3, name: 2})
+    UserReadingCache.add_user(%{uuid: 4, name: 3})
+    UserReadingCache.delete_user(3)
+    assert length(UserReadingCache.all_users) == 2
+    assert List.last(UserReadingCache.all_users).uuid == 3
+  end
+
+  test "update" do
+    UserReadingCacheSupervisor.start_link
+    UserReadingCache.add_user(%{uuid: 3, name: "old_name"})
+    UserReadingCache.update_user(3, %{uuid: 3, name: "something"})
+    assert UserReadingCache.get_user_by_uuid(3).name == "something"
   end
 end
