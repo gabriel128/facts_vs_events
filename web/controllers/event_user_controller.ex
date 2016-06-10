@@ -4,11 +4,11 @@
 # - User Cache in index
 # - Update Cache on update
 # - Delete Cache on delete
-defmodule FactsVsEvents.EventUserController do
+defmodule FactsVsEvents.EventUserTransformationController do
   use FactsVsEvents.Web, :controller
   alias FactsVsEvents.Events.{CreateUserCommand, ChangeUserCommand, 
                               DeleteUserCommand, UserStateHandler, 
-                              User, UserEvent, UserRepo, LoginUserEventFilter}
+                              User, UserEvent, LoginUserEventFilter}
   alias FactsVsEvents.{JsonTransformer, EventsUuidMapper}
   import FactsVsEvents.AuthService, only: [current_user: 1, logged_in?: 1]
 
@@ -18,21 +18,6 @@ defmodule FactsVsEvents.EventUserController do
   def params_keys_to_atoms(conn, _) do
     params = JsonTransformer.keys_to_atoms(conn.params["user"])
     %{conn | params: %{user: params}}
-  end
-
-  def index(conn, _params) do
-    users =
-      UserRepo.uuids
-      |> UserStateHandler.all(with_repo: UserRepo)
-      |> LoginUserEventFilter.filter_events_given(current_user(conn))
-    events =
-      Repo.all(UserEvent)
-      |> LoginUserEventFilter.filter_events_given(current_user(conn))
-    render(conn, "index.html", users: users, events: events)
-  end
-
-  def new(conn, _params) do
-    render(conn, "new.html", user: %User{})
   end
 
   def create(conn, %{user: user_params}) do
@@ -45,28 +30,8 @@ defmodule FactsVsEvents.EventUserController do
         |> redirect(to: event_user_path(conn, :index))
       {:error, errors} -> 
         user = Map.merge %User{}, user_params
-        render(conn, "new.html", user: user, errors: errors)
+        render(conn, FactsVsEvents.EventUserView, "new.html", user: user, errors: errors)
     end
-  end
-
-  def show(conn, %{"id" => uuid}) do
-    fetch_user_and_render(conn, uuid, "show.html")
-  end
-
-  defp fetch_user_and_render(conn, uuid, template) do
-    UserRepo.find(uuid: uuid, with: UserStateHandler)
-    |> LoginUserEventFilter.filter_single_event_given(current_user(conn))
-    |> case do
-        {:ok, user} -> render(conn, template, user: user)
-        {:error} ->
-           conn
-           |> put_status(:not_found)
-           |> render(FactsVsEvents.ErrorView, "404.html")
-    end
-  end
-
-  def edit(conn, %{"id" => uuid}) do
-    fetch_user_and_render(conn, uuid, "edit.html")
   end
 
   def update(conn, %{"id" => uuid, "user" => event_user_params}) do
@@ -80,7 +45,7 @@ defmodule FactsVsEvents.EventUserController do
         {:error, errors} -> 
           params = JsonTransformer.keys_to_atoms(event_user_params)
           user = Map.merge %User{}, params
-          render(conn, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
+          render(conn, FactsVsEvents.EventUserView, "edit.html", user: %{ user | uuid: uuid}, errors: errors)
       end
   end
 
