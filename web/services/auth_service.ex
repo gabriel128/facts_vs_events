@@ -10,14 +10,13 @@ defmodule FactsVsEvents.AuthService do
   end
 
   def login(changeset) do
-    user = Repo.get_by(LoginUser, email: String.downcase(changeset.params["email"]), 
-                             encrypted_password: encrypted_pass(changeset))
-    login_response_regarding(user, changeset)
+    Repo.get_by(LoginUser, email: String.downcase(changeset.params["email"]), encrypted_password: encrypted_pass(changeset))
+    |> login_response_regarding(changeset)
   end
 
   def current_user(conn) do
-    id = Plug.Conn.get_session(conn, :current_user)
-    fetch_current_user(id)
+    Plug.Conn.get_session(conn, :current_user)
+    |> fetch_current_user()
   end
 
   def logged_in?(conn), do: !!current_user(conn)

@@ -32,8 +32,7 @@ defmodule FactsVsEvents.FactRepo do
   def all(model, [owner_id: owner_id]) do
     Repo.all(from u in model,  where: u.owner_id == ^owner_id)
     |> Enum.group_by(fn (record) -> record.uuid end)
-    |> Enum.map(fn  ({_, grouped_records}) -> grouped_records end)
-    |> Enum.map(fn (grouped_records) -> 
+    |> Enum.map(fn ({_, grouped_records}) -> 
          find_with_biggest_transaction_id_from(grouped_records) 
        end)
     |> Enum.filter(fn(record) -> record.fact != "deleted" end)
@@ -47,7 +46,7 @@ defmodule FactsVsEvents.FactRepo do
 
   defp find_with_biggest_transaction_id_from(grouped_records) do
     Enum.sort(grouped_records, fn(grouped_records,y) -> 
-     grouped_records.transaction_id < y.transaction_id 
+      grouped_records.transaction_id < y.transaction_id 
     end)
     |> List.last()
   end

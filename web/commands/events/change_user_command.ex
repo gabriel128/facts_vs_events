@@ -1,6 +1,5 @@
 defmodule FactsVsEvents.Events.ChangeUserCommand do
-  alias FactsVsEvents.Events.UserRepo
-  alias FactsVsEvents.Events.UserStateHandler
+  alias FactsVsEvents.Events.{UserRepo, UserStateHandler}
   alias FactsVsEvents.Events.CommandResponseTransformer
   alias FactsVsEvents.Events.UserEvent
   alias FactsVsEvents.Events.UserValidator
