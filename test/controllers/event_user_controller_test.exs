@@ -1,6 +1,5 @@
 defmodule FactsVsEvents.EventUserControllerTest do
   use FactsVsEvents.ConnCase
-  alias FactsVsEvents.Events.User
   alias FactsVsEvents.LoginUser
   alias FactsVsEvents.Events.CreateUserCommand
   alias FactsVsEvents.Events.UserStateHandler
@@ -65,7 +64,7 @@ defmodule FactsVsEvents.EventUserControllerTest do
   end
 
   test "renders form for editing chosen resource", %{conn: conn} do
-    {user, event_uuid} = create_login_user_and_event
+    {user, _} = create_login_user_and_event
     with_auth_mocked(user) do
       event_user = UserRepo.find(uuid: 1, with: UserStateHandler)
       conn = get conn, event_user_path(conn, :edit, event_user.uuid)

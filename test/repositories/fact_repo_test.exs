@@ -76,7 +76,7 @@ defmodule FactsVsEvents.FactRepoTest do
     {:ok, record} =
       User.changeset(%User{}, %{name: "a_name", email: "an_email", owner_id: 1})
       |> FactRepo.create(User, commit_message: "Create a new user")
-    {:ok, record2} =
+    {:ok, _} =
       User.changeset(%User{}, %{name: "a_name2", email: "an_email", owner_id: 2})
       |> FactRepo.create(User, commit_message: "Create a new user")
     found_record = FactRepo.get!(User, record.uuid, owner_id: 1)
@@ -96,7 +96,7 @@ defmodule FactsVsEvents.FactRepoTest do
       |> FactRepo.create(User, commit_message: "Create a new user")
     FactRepo.delete(record, commit_message: "Deleting this")
     try do
-      found_record = FactRepo.get!(User, record.uuid, owner_id: 1)
+      FactRepo.get!(User, record.uuid, owner_id: 1)
       raise "fail"
     rescue
       Ecto.NoResultsError -> assert true == true
@@ -109,7 +109,7 @@ defmodule FactsVsEvents.FactRepoTest do
       |> FactRepo.create(User, commit_message: "Create a new user")
     User.changeset(record, %{name: "other"})
     |> FactRepo.update(commit_message: "Update this")
-    {:ok, record2} =
+    {:ok, _} =
       User.changeset(%User{}, %{name: "a_name", email: "an_email", owner_id: 1})
       |> FactRepo.create(User, commit_message: "Create a new user")
     found_records = FactRepo.all(User, owner_id: 1)
@@ -117,10 +117,10 @@ defmodule FactsVsEvents.FactRepoTest do
   end
 
   test "all return just the owner ones" do
-    {:ok, record} =
+    {:ok, _} =
       User.changeset(%User{}, %{name: "a_name", email: "an_email", owner_id: 1})
       |> FactRepo.create(User, commit_message: "Create a new user")
-    {:ok, record2} =
+    {:ok, _} =
       User.changeset(%User{}, %{name: "a_name", email: "an_email", owner_id: 2})
       |> FactRepo.create(User, commit_message: "Create a new user")
     found_records = FactRepo.all(User, owner_id: 2)

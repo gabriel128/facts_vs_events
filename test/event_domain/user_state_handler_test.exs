@@ -4,7 +4,6 @@ defmodule FactsVsEvents.Events.UserStateHandlerTest do
   alias FactsVsEvents.Events.ChangeUserCommand
   alias FactsVsEvents.Events.DeleteUserCommand
   alias FactsVsEvents.Events.UserStateHandler
-  alias FactsVsEvents.Events.User
   alias FactsVsEvents.Events.UserEvent
   alias FactsVsEvents.Events.UserRepo
   alias FactsVsEvents.LoginUser
@@ -43,7 +42,7 @@ defmodule FactsVsEvents.Events.UserStateHandlerTest do
     CreateUserCommand.execute(%{name: "a_name", email: "an_email"})
     CreateUserCommand.execute(%{name: "b_name", email: "an_email"})
     users = UserRepo.uuids
-           |> UserStateHandler.all(with_repo: UserRepo)
+           |> UserStateHandler.all2(%{with: "", with_repo: UserRepo})
     assert Enum.at(users, 0).name == "a_name"
     assert Enum.at(users, 1).name == "b_name"
   end
@@ -60,7 +59,7 @@ defmodule FactsVsEvents.Events.UserStateHandlerTest do
   test "just returning events by user owner uuids" do
     uuid = create_user
     change_user_with(uuid) 
-    other_uuid = create_user("b_name")
+    create_user("b_name")
     user = create_login_user
     {:ok, user} = EventsUuidMapper.add_uuid_to_user(user, uuid)
     event_users = UserRepo.uuids |> UserStateHandler.all(with_repo: UserRepo)

@@ -11,6 +11,15 @@ defmodule FactsVsEvents.Events.UserStateHandler do
     |> Enum.filter(fn (user) -> user != %{} end)
   end
 
+  def all2(event_uuids, %{with_repo: repo , with: other}) do
+    Enum.reduce(event_uuids, [], fn (uuid, acc) ->
+      user = repo.get_events_for_user_with(uuid: uuid) 
+             |> current_state_from()
+      acc ++ [user]
+    end)
+    |> Enum.filter(fn (user) -> user != %{} end)
+  end
+
   def current_state_from(events) do
     Enum.reduce(events, %{}, fn (event, acc) ->
       handle(event, event.event_type, acc)
